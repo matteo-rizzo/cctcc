@@ -5,7 +5,10 @@ from auxiliary.utils import get_device
 from classes.modules.common.alexnet.AlexNetLoader import AlexNetLoader
 from classes.modules.common.squeezenet.SqueezeNetLoader import SqueezeNetLoader
 
-""" RCC-Net presented in https://ieeexplore.ieee.org/document/8237844, 'Recurrent Color Constancy' """
+"""
+RCCNet presented in 'Recurrent Color Constancy' <https://ieeexplore.ieee.org/document/8237844>
+Refer to <https://github.com/yanlinqian/Temporal-Color-Constancy> for the original implementation
+"""
 
 
 class RCCNet(nn.Module):

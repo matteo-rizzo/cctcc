@@ -5,7 +5,10 @@ from auxiliary.utils import get_device
 from classes.modules.common.conv_lstm.ConvLSTMCell import ConvLSTMCell
 from classes.modules.common.squeezenet.SqueezeNetLoader import SqueezeNetLoader
 
-""" TCCNet presented in 'A Benchmark for Temporal Color Constancy' <https://arxiv.org/abs/2003.03763> """
+"""
+TCCNet presented in 'A Benchmark for Temporal Color Constancy' <https://arxiv.org/abs/2003.03763>
+Refer to <https://github.com/yanlinqian/Temporal-Color-Constancy> for the original implementation
+"""
 
 
 class TCCNet(nn.Module):

@@ -3,10 +3,10 @@ import os
 
 from PIL import Image
 from tqdm import tqdm
+
 from viz.utils import linear_to_nonlinear
 
-NUM_EXAMPLES = -1
-W = -1
+NUM_EXAMPLES = 25
 
 DATA_TYPE = "test"
 PATH_TO_DATA = os.path.join("raw", DATA_TYPE)
@@ -30,16 +30,15 @@ def main():
         paths_to_frames = glob.glob(os.path.join(path_to_seq, "[0-9]*.png"))
         paths_to_frames.sort(key=lambda x: x[:-4].split(os.sep)[-1])
 
+        path_to_result = os.path.join(PATH_TO_RESULTS, seq_id)
+        os.makedirs(path_to_result)
+
         for path_to_frame in paths_to_frames:
             frame = linear_to_nonlinear(Image.open(path_to_frame))
-
-            if W > -1:
-                h = int(float(frame.size[1]) * float(W / float(frame.size[0])))
-                frame = frame.resize((W, h), Image.ANTIALIAS)
-
-            path_to_result = os.path.join(PATH_TO_RESULTS, seq_id)
-            os.makedirs(path_to_result, exist_ok=True)
             frame.save(os.path.join(path_to_result, path_to_frame.split(os.sep)[-1]))
+
+        gt = linear_to_nonlinear(Image.open(os.path.join(path_to_seq, "groundtruth.png")))
+        gt.save(os.path.join(path_to_result, "groundtruth.png"))
 
     print("\n=================================================\n")
     print("\t Sequences processed successfully!")

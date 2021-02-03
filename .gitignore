@@ -127,3 +127,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/dataset/tcc/non_linear/
+/dataset/tcc/preprocessed/
+/dataset/tcc/raw/
+/results/
+/dataset/grayball/raw/
+/dataset/grayball/groundtruth.mat
+/dataset/grayball/images_gt_order.lst
+/dataset/grayball/preprocessed/
+/dataset/grayball/sequences/
+/dataset/grayball/preprocessed/

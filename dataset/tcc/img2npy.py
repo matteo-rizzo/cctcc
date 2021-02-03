@@ -4,7 +4,6 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 
 USE_CV_METADATA = False
 USE_VAL_SET = False

@@ -7,7 +7,7 @@ import scipy.io as scio
 import torch.utils.data
 from torch.utils.data import DataLoader
 
-from auxiliary.utils import get_device
+from auxiliary.utils import get_device, make_deterministic
 from classes.data.datasets.TemporalColorConstancy import TemporalColorConstancy
 from classes.modules.multiframe.tccnet.ModelTCCNet import ModelTCCNet
 from classes.modules.multiframe.tccnetc4.ModelTCCNetC4 import ModelTCCNetC4
@@ -21,7 +21,7 @@ Results on the TCC Split:
 
 MODEL_TYPE = "tccnet"
 DATA_FOLDER = "tcc_split"
-PATH_TO_PTH = os.path.join("trained_models", "baseline", MODEL_TYPE, "model.pth")
+PATH_TO_PTH = os.path.join("trained_models", "improved", "best_full_seq", MODEL_TYPE, DATA_FOLDER, "model.pth")
 
 MODELS = {"tccnet": ModelTCCNet, "tccnetc4": ModelTCCNetC4}
 
@@ -77,4 +77,5 @@ def main():
 
 
 if __name__ == '__main__':
+    make_deterministic()
     main()

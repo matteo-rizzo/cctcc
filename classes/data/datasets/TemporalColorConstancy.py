@@ -35,14 +35,14 @@ class TemporalColorConstancy(data.Dataset):
         mimic = torch.from_numpy(self.__da.augment_mimic(img).transpose((0, 3, 1, 2)).copy())
 
         if self.__mode == "train":
-            img, illuminant, color_bias = self.__da.augment_sequence(img, illuminant)
+            img, color_bias = self.__da.augment_sequence(img, illuminant)
             color_bias = np.array([[[color_bias[0][0], color_bias[1][1], color_bias[2][2]]]], dtype=np.float32)
             mimic = torch.mul(mimic, torch.from_numpy(color_bias).view(1, 3, 1, 1))
         else:
             img = self.__da.resize_sequence(img)
 
         img = np.clip(img, 0.0, 255.0) * (1.0 / 255)
-        img = self.__da.hwc_chw(np.power(self.__da.brg_to_rgb(img), (1.0 / 2.2)))
+        img = self.__da.hwc_chw(self.__da.gamma_correct(self.__da.brg_to_rgb(img)))
 
         img = torch.from_numpy(img.copy())
         illuminant = torch.from_numpy(illuminant.copy())

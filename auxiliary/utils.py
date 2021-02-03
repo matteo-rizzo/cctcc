@@ -5,6 +5,7 @@ import torch
 
 DEVICE_TYPE = "cuda:0"
 WARNING = False
+RANDOM_SEED = 4
 
 
 def get_device() -> torch.device:
@@ -27,6 +28,6 @@ def get_device() -> torch.device:
 
 
 def make_deterministic():
-    torch.manual_seed(0)
-    np.random.seed(0)
+    torch.manual_seed(RANDOM_SEED)
+    np.random.seed(RANDOM_SEED)
     torch.backends.cudnn.benchmark = False

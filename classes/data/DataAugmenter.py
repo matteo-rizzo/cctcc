@@ -36,6 +36,10 @@ class DataAugmenter:
         raise ValueError("Bad image shape detected in HWC to CHW conversion: {}".format(img.shape))
 
     @staticmethod
+    def gamma_correct(img:np.array, gamma:float=2.2) -> np.array:
+        return np.power(img, (1.0 / gamma))
+
+    @staticmethod
     def __rotate_image(image: np.array, angle: float) -> np.array:
         """
         Rotates an OpenCV 2 / NumPy image about it's centre by the given angle (in degrees).
@@ -199,7 +203,7 @@ class DataAugmenter:
             augmented_frames.append(self.__augment_image(images[i], color_bias, scale, angle, flip_p))
             augmented_illuminants.append(self.__augment_illuminant(illuminant, color_bias))
 
-        return np.stack(augmented_frames), illuminant, color_bias
+        return np.stack(augmented_frames), color_bias
 
     def augment_mimic(self, img: np.array) -> np.array:
         if len(img.shape) == 4:

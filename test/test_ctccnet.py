@@ -20,8 +20,8 @@ Results on the TCC Split:
     * CTCCNetC4 : mean: 1.6971, med: 0.9229, tri: 1.1347, bst: 0.2197, wst: 4.3621, pct: 6.0535
 """
 
-MODEL_TYPE = "ctccnet"
-DATA_FOLDER = "fold_2"
+MODEL_TYPE = "ctccnetc4"
+DATA_FOLDER = "tcc_split"
 PATH_TO_PTH = os.path.join("trained_models", "improved", "best_full_seq", MODEL_TYPE, DATA_FOLDER, "model.pth")
 
 MODELS = {"ctccnet": ModelCTCCNet, "ctccnetc4": ModelCTCCNetC4}

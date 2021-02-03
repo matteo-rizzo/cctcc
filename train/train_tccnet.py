@@ -15,7 +15,7 @@ from classes.training.Evaluator import Evaluator
 from classes.training.LossTracker import LossTracker
 
 MODEL_TYPE = "tccnet"
-DATA_FOLDER = "fold_0"
+DATA_FOLDER = "tcc_split"
 EPOCHS = 2000
 BATCH_SIZE = 1
 LEARNING_RATE = 0.00003

@@ -49,14 +49,8 @@ def main():
 
     with torch.no_grad():
         for i, data in enumerate(test_loader):
-
-            if i < 163:
-                continue
-
-            if i > 163:
+            if NUM_EXAMPLES != -1 and i >= NUM_EXAMPLES:
                 break
-            # if NUM_EXAMPLES != -1 and i >= NUM_EXAMPLES:
-            #     break
 
             img, mimic, label, path_to_data = data
             img, mimic, label = img.to(device), mimic.to(device), label.to(device)

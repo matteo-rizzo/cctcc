@@ -14,7 +14,7 @@ class GrayBall(BaseTemporalDataset):
         scenes = sorted(os.listdir(path_to_dataset))
         test_scene = scenes.pop(fold_num)
 
-        if self.__mode == "train":
+        if self._mode == "train":
             for scene in scenes:
                 path_to_scene_data = os.path.join(path_to_dataset, scene, self._data_dir)
                 self._paths_to_items += glob.glob(os.path.join(path_to_scene_data, "*.npy"))

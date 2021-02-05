@@ -11,6 +11,7 @@ FOLD_NUM = 2
 CV_METADATA_FILE = "3_folds_experiment.csv"
 
 USE_HIGH_PRECISION = False
+DOWN_SAMPLE = True
 TRUNCATE = False
 SUBSEQUENCE_LEN = 2
 
@@ -76,6 +77,9 @@ def convert_data(file_names: list, set_type: str):
 
         if TRUNCATE:
             files_seq = files_seq[len(files_seq) - SUBSEQUENCE_LEN:]
+
+        if DOWN_SAMPLE:
+            files_seq = np.array(files_seq)[[0, len(files_seq) // 2, -1]]
 
         seq_id = (i + 1) if USE_CV_METADATA else seq.split(os.sep)[-1]
 

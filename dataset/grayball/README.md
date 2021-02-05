@@ -30,18 +30,16 @@ affect any of the results. However, in case you wonder about them there are 9 of
 * raw/Metrotown/16980.jpg
 * raw/SFU/00670.jpg
 
-***Note**: for practical convenience, these frames have been physically removed from the dataset to generate the
-sequences for the temporal scenario.*
+**Note**: for practical convenience, these frames have been physically removed from the dataset to generate the
+sequences for the temporal scenario.
 
 ## Preprocessing
 
 1. **Extract subsequences.**
-    1. All sequences have fixed length *N*. The
-       paper ["Recurrent Color Constancy"](https://openaccess.thecvf.com/content_ICCV_2017/papers/Qian_Recurrent_Color_Constancy_ICCV_2017_paper.pdf)
-       suggests *N = 5* as best trade-off between accuracy and required resources.
+    1. All sequences have fixed length *N*. The paper ["Recurrent Color Constancy"](https://openaccess.thecvf.com/content_ICCV_2017/papers/Qian_Recurrent_Color_Constancy_ICCV_2017_paper.pdf) suggests *N = 5* as best trade-off between accuracy and required resources.
     2. For each scene, given the ordered sequence of frames `f_0, f_1, ..., f_n`, no sequences is generated for the
        first *N - 1* frames (as the would not have enough preceding frames for the temporal processing). For example,
-       if *N = 5*, frames `f_0, f_1, f_2, f_3`
+       if *N = 5*, frames `f_0, f_1, f_2, f_3` are skipped
 2. **Data augmentation**. Performed as for Temporal Color Constancy (TCC) Dataset:
     1. Random rotation in [-30°, +30]
     2. Random crop in scale [0.8, 1.0] on the shorter dimension

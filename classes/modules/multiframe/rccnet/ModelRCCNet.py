@@ -6,12 +6,8 @@ from classes.modules.multiframe.rccnet.RCCNet import RCCNet
 
 class ModelRCCNet(BaseModel):
 
-    def __init__(self,
-                 device: torch.device,
-                 input_size: int = 256,
-                 hidden_size: int = 128,
-                 backbone_type: str = "alexnet"):
-        super().__init__(device)
+    def __init__(self, input_size: int = 256, hidden_size: int = 128, backbone_type: str = "alexnet"):
+        super().__init__()
         self._network = RCCNet(input_size, hidden_size, backbone_type).to(self._device)
 
     def predict(self, sequence: torch.Tensor, mimic: torch.Tensor = None) -> torch.Tensor:

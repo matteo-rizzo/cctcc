@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.nn.functional import normalize
 
-from auxiliary.utils import get_device
+from auxiliary.settings import DEVICE
 from classes.modules.common.conv_lstm.ConvLSTMCell import ConvLSTMCell
 from classes.modules.multiframe.tccnetc4.submodules.C4 import C4
 
@@ -14,7 +14,7 @@ class TCCNetC4(nn.Module):
     def __init__(self, hidden_size: int = 128, kernel_size: int = 5):
         super().__init__()
 
-        self.device = get_device()
+        self.device = DEVICE
         self.hidden_size = hidden_size
 
         self.c4_A, self.c4_B = C4(), C4()

@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from auxiliary.utils import get_device
+from auxiliary.settings import DEVICE
 from classes.modules.multiframe.tccnet.TCCNet import TCCNet
 
 
@@ -10,7 +10,7 @@ class CTCCNet(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.__device = get_device()
+        self.__device = DEVICE
 
         self.submodel1 = TCCNet()
         self.submodel2 = TCCNet()

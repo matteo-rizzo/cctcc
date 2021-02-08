@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import os
 import time
 
@@ -7,7 +5,7 @@ import matplotlib.pyplot as plt
 import scipy.io as scio
 import torch.utils.data
 
-from auxiliary.utils import get_device
+from auxiliary.settings import DEVICE
 from classes.data.datasets.TemporalColorConstancy import TemporalColorConstancy
 from classes.modules.multiframe.ctccnet.ModelCTCCNet import ModelCTCCNet
 from classes.modules.multiframe.ctccnetc4.ModelCTCCNetC4 import ModelCTCCNetC4
@@ -20,15 +18,14 @@ Results on the TCC Split:
     * CTCCNetC4 : mean: 1.6971, med: 0.9229, tri: 1.1347, bst: 0.2197, wst: 4.3621, pct: 6.0535
 """
 
-MODEL_TYPE = "ctccnetc4"
+MODEL_TYPE = "ctccnet"
 DATA_FOLDER = "tcc_split"
-PATH_TO_PTH = os.path.join("trained_models", "improved", "best_full_seq", MODEL_TYPE, DATA_FOLDER, "model.pth")
+PATH_TO_PTH = os.path.join("trained_models", "full_seq", MODEL_TYPE, DATA_FOLDER, "model.pth")
 
 MODELS = {"ctccnet": ModelCTCCNet, "ctccnetc4": ModelCTCCNetC4}
 
 
 def main():
-    device = get_device()
     eval1, eval2, eval3 = Evaluator(), Evaluator(), Evaluator()
     log_data = {"file_names": [], "predictions": [], "ground_truths": []}
 
@@ -36,7 +33,7 @@ def main():
     test_loader = torch.utils.data.DataLoader(test_set, batch_size=1, shuffle=False, num_workers=20)
     print('Test set size: {}'.format(len(test_set)))
 
-    model = MODELS[MODEL_TYPE](device)
+    model = MODELS[MODEL_TYPE]()
 
     if os.path.exists(PATH_TO_PTH):
         print('\n Loading pretrained {} model stored at: {} \n'.format(MODEL_TYPE, PATH_TO_PTH))
@@ -51,7 +48,7 @@ def main():
     with torch.no_grad():
         for i, data in enumerate(test_loader):
             img, mimic, label, file_name = data
-            img, mimic, label = img.to(device), mimic.to(device), label.to(device)
+            img, mimic, label = img.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
 
             o1, o2, o3 = model.predict(img, mimic)
             p1, p2, p3 = o1, torch.mul(o1, o2), torch.mul(torch.mul(o1, o2), o3)

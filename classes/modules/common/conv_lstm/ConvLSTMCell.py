@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
-from auxiliary.utils import get_device
+from auxiliary.settings import DEVICE
 
 
 class ConvLSTMCell(nn.Module):
@@ -10,7 +10,7 @@ class ConvLSTMCell(nn.Module):
     def __init__(self, input_channels, hidden_channels, kernel_size):
         super().__init__()
 
-        self.device = get_device()
+        self.device = DEVICE
 
         self.input_channels = input_channels
         self.hidden_channels = hidden_channels

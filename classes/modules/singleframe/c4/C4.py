@@ -1,6 +1,6 @@
 import torch
 
-from auxiliary.utils import get_device
+from auxiliary.settings import get_device
 from classes.modules.singleframe.fc4.FC4 import FC4
 
 

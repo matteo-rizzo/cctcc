@@ -6,8 +6,8 @@ from classes.modules.multiframe.tccnetc4.TCCNetC4 import TCCNetC4
 
 class ModelTCCNetC4(BaseModel):
 
-    def __init__(self, device: torch.device, hidden_size: int = 128, kernel_size: int = 5):
-        super().__init__(device)
+    def __init__(self, hidden_size: int = 128, kernel_size: int = 5):
+        super().__init__()
         self._network = TCCNetC4(hidden_size, kernel_size).to(self._device)
 
     def predict(self, sequence: torch.Tensor, mimic: torch.Tensor = None) -> torch.Tensor:

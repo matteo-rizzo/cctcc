@@ -6,8 +6,8 @@ from classes.modules.multiframe.ctccnet.CTCCNet import CTCCNet
 
 class ModelCTCCNet(BaseModel):
 
-    def __init__(self, device: torch.device):
-        super().__init__(device)
+    def __init__(self):
+        super().__init__()
         self._network = CTCCNet().float().to(self._device)
 
     def predict(self, sequence: torch.Tensor, mimic: torch.Tensor = None) -> torch.Tensor:

@@ -7,8 +7,8 @@ from classes.modules.singleframe.fc4.FC4 import FC4
 
 class ModelFC4(BaseModel):
 
-    def __init__(self, device: torch.device):
-        super().__init__(device)
+    def __init__(self, DEVICE: torch.DEVICE):
+        super().__init__(DEVICE)
         self._network = FC4().to(self._device)
 
     def predict(self, img: torch.Tensor) -> torch.Tensor:

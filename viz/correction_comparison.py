@@ -8,7 +8,7 @@ import torch
 from PIL import Image
 from torch.utils.data import DataLoader
 
-from auxiliary.utils import get_device
+from auxiliary.settings import DEVICE
 from classes.data.datasets.TemporalColorConstancy import TemporalColorConstancy
 from classes.modules.multiframe.ctccnet.ModelCTCCNet import ModelCTCCNet
 from classes.modules.multiframe.ctccnetc4.ModelCTCCNetC4 import ModelCTCCNetC4
@@ -30,7 +30,6 @@ MODELS = {"tccnet": ModelTCCNet, "tccnetc4": ModelTCCNetC4, "ctccnet": ModelCTCC
 
 
 def main():
-    device = get_device()
     log_data = {"file_names": [], "ground_truths": []}
     models = {}
 
@@ -39,7 +38,7 @@ def main():
     print('Test set size: {}'.format(len(test_set)))
 
     for model_type, model in MODELS.items():
-        model = model(device)
+        model = model()
 
         path_to_pth = os.path.join(BASE_PATH_TO_PTH, model_type, DATA_FOLDER, "model.pth")
         if os.path.exists(path_to_pth):
@@ -61,7 +60,7 @@ def main():
                 break
 
             img, mimic, label, path_to_data = data
-            img, mimic, label = img.to(device), mimic.to(device), label.to(device)
+            img, mimic, label = img.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
 
             log_data["file_names"].append(path_to_data[0])
             log_data["ground_truths"].append(label.cpu().numpy())

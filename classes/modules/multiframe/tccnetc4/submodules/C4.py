@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from auxiliary.utils import get_device
+from auxiliary.settings import DEVICE
 from classes.modules.common.squeezenet.SqueezeNetLoader import SqueezeNetLoader
 from classes.modules.singleframe.fc4.FC4 import FC4
 
@@ -10,7 +10,7 @@ class C4(torch.nn.Module):
 
     def __init__(self):
         super().__init__()
-        self.__device = get_device()
+        self.__device = DEVICE
         self.submodel1 = FC4()
         self.submodel2 = FC4()
         self.submodel3 = nn.Sequential(*list(SqueezeNetLoader().load(pretrained=True).children())[0][:12])

@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import os
 import time
 
@@ -7,27 +5,26 @@ import pandas as pd
 import torch.utils.data
 from torch.utils.data import DataLoader
 
-from auxiliary.utils import *
+from auxiliary.settings import DEVICE
 from classes.data.datasets.TemporalColorConstancy import TemporalColorConstancy
 from classes.modules.multiframe.tccnet.ModelTCCNet import ModelTCCNet
 from classes.modules.multiframe.tccnetc4.ModelTCCNetC4 import ModelTCCNetC4
 from classes.training.Evaluator import Evaluator
 from classes.training.LossTracker import LossTracker
 
-MODEL_TYPE = "tccnet"
+MODEL_TYPE = "tccnetc4"
 DATA_FOLDER = "tcc_split"
 EPOCHS = 2000
 BATCH_SIZE = 1
 LEARNING_RATE = 0.00003
 
 RELOAD_CHECKPOINT = False
-PATH_TO_PTH_CHECKPOINT = os.path.join("trained_models", "tccnetc4", "pretrained-874", "best_model.pth")
+PATH_TO_PTH_CHECKPOINT = os.path.join("trained_models", "{}_{}".format(MODEL_TYPE, DATA_FOLDER), "model.pth")
 
 MODELS = {"tccnet": ModelTCCNet, "tccnetc4": ModelTCCNetC4}
 
 
 def main():
-    device = get_device()
     evaluator = Evaluator()
 
     path_to_log = os.path.join("logs", MODEL_TYPE + "_" + DATA_FOLDER + "_" + str(time.time()))
@@ -46,7 +43,7 @@ def main():
     print("\t - Test set size: {}\n".format(test_set_size))
     test_loader = DataLoader(dataset=test_set, batch_size=BATCH_SIZE, num_workers=8)
 
-    model = MODELS[MODEL_TYPE](device)
+    model = MODELS[MODEL_TYPE]()
 
     if RELOAD_CHECKPOINT:
         print('\n Reloading checkpoint - pretrained model stored at: {} \n'.format(PATH_TO_PTH_CHECKPOINT))
@@ -77,9 +74,9 @@ def main():
             model.reset_gradient()
 
             sequence, mimic, label, file_name = data
-            sequence = sequence.unsqueeze(1).to(device) if len(sequence.shape) == 4 else sequence.to(device)
-            mimic = mimic.to(device)
-            label = label.to(device)
+            sequence = sequence.unsqueeze(1).to(DEVICE) if len(sequence.shape) == 4 else sequence.to(DEVICE)
+            mimic = mimic.to(DEVICE)
+            label = label.to(DEVICE)
 
             loss = model.compute_loss(sequence, label, mimic)
             model.optimize()
@@ -112,9 +109,9 @@ def main():
                 for i, data in enumerate(test_loader):
 
                     sequence, mimic, label, file_name = data
-                    sequence = sequence.unsqueeze(1).to(device) if len(sequence.shape) == 4 else sequence.to(device)
-                    mimic = mimic.to(device)
-                    label = label.to(device)
+                    sequence = sequence.unsqueeze(1).to(DEVICE) if len(sequence.shape) == 4 else sequence.to(DEVICE)
+                    mimic = mimic.to(DEVICE)
+                    label = label.to(DEVICE)
 
                     o = model.predict(sequence, mimic)
                     loss = model.get_angular_loss(o, label).item()
@@ -168,5 +165,4 @@ def main():
 
 
 if __name__ == '__main__':
-    make_deterministic()
     main()

@@ -3,7 +3,7 @@ import torch
 import torchvision.transforms.functional as TF
 from PIL import Image
 
-from auxiliary.utils import get_device
+from auxiliary.settings import get_device
 
 
 def correct(img: np.array, illuminant: torch.Tensor) -> Image:

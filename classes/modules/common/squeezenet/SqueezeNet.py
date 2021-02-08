@@ -1,5 +1,3 @@
-from abc import ABC
-
 import torch
 import torch.nn as nn
 import torch.nn.init as init
@@ -18,7 +16,7 @@ Architecture from: <https://github.com/DeepScale/SqueezeNet/tree/master/SqueezeN
 """
 
 
-class SqueezeNet(nn.Module, ABC):
+class SqueezeNet(nn.Module):
 
     def __init__(self, version: float = 1.0, num_classes: int = 1000):
         super().__init__()

@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from auxiliary.utils import get_device
+from auxiliary.settings import DEVICE
 from classes.modules.common.conv_lstm.ConvLSTMCell import ConvLSTMCell
 from classes.modules.common.squeezenet.SqueezeNetLoader import SqueezeNetLoader
 
@@ -16,7 +16,7 @@ class TCCNet(nn.Module):
     def __init__(self, hidden_size: int = 128, kernel_size: int = 5):
         super().__init__()
 
-        self.device = get_device()
+        self.device = DEVICE
         self.hidden_size = hidden_size
 
         s1 = SqueezeNetLoader(version=1.1).load(pretrained=True)

@@ -7,7 +7,7 @@
 
 The Gray Ball was generated from 15 video clips with significantly different content. From each video, 81 − 1312 frames
 were selected and provided with ground truth. The videos are sampled at roughly 3 frames per second. The images in the
-original dataset are stored in a non-linear device specific RGB color space.
+original dataset are stored in a non-linear DEVICE specific RGB color space.
 
 The .zip file contains:
 

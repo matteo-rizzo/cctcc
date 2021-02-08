@@ -97,7 +97,7 @@ inference, handling the weights update and the loss computation.
 
 The `auxiliary/utils.py` file features two functions:
 
-* `get_device`: instantiates the Torch device (i.e., either CPU or GPU) for training and testing. The device type can be
+* `get_device`: instantiates the Torch DEVICE (i.e., either CPU or GPU) for training and testing. The DEVICE type can be
   edited to the corresponding global variable at the top of the file.
 * `make_deterministic`: sets the random seed. Note that models have been trained using a mix of Tesla P100 and NVidia
   GeForce GTX 1080 Ti GPUs from local lab equipment and cloud services. Please refer to

@@ -1,12 +1,10 @@
-from __future__ import print_function
-
 import os
 import time
 
 import scipy.io as scio
 import torch.utils.data
 
-from auxiliary.utils import get_device, make_deterministic
+from auxiliary.settings import DEVICE
 from classes.data.datasets.TemporalColorConstancy import TemporalColorConstancy
 from classes.modules.multiframe.rccnet.ModelRCCNet import ModelRCCNet
 from classes.training.Evaluator import Evaluator
@@ -20,7 +18,6 @@ PATH_TO_PTH = os.path.join(BASE_PATH_TO_PRETRAINED, "model.pth")
 
 
 def main():
-    device = get_device()
     evaluator = Evaluator()
     log_data = {"file_names": [], "predictions": [], "ground_truths": []}
 
@@ -28,7 +25,7 @@ def main():
     test_loader = torch.utils.data.DataLoader(test_set, batch_size=1, shuffle=False, num_workers=20)
     print('Test set size: {}'.format(len(test_set)))
 
-    model = ModelRCCNet(device)
+    model = ModelRCCNet()
     model.evaluation_mode()
 
     if os.path.exists(PATH_TO_PTH):
@@ -44,7 +41,7 @@ def main():
     with torch.no_grad():
         for i, data in enumerate(test_loader):
             img, mimic, label, file_name = data
-            img, mimic, label = img.to(device), mimic.to(device), label.to(device)
+            img, mimic, label = img.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
 
             pred = model.predict(img, mimic)
             loss = model.get_angular_loss(pred, label)
@@ -70,5 +67,4 @@ def main():
 
 
 if __name__ == '__main__':
-    make_deterministic()
     main()

@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from auxiliary.utils import get_device
+from auxiliary.settings import DEVICE
 from classes.modules.common.alexnet.AlexNetLoader import AlexNetLoader
 from classes.modules.common.squeezenet.SqueezeNetLoader import SqueezeNetLoader
 
@@ -16,7 +16,7 @@ class RCCNet(nn.Module):
     def __init__(self, input_size: int = 256, hidden_size: int = 128, backbone_type: str = "alexnet"):
         super().__init__()
 
-        self.device = get_device()
+        self.device = DEVICE
         self.hidden_size = hidden_size
 
         if backbone_type == "alexnet":

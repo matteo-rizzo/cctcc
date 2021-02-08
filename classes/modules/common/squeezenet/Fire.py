@@ -1,11 +1,8 @@
-from abc import ABC
-
+import torch
 import torch.nn as nn
 
-from auxiliary.utils import *
 
-
-class Fire(nn.Module, ABC):
+class Fire(nn.Module):
 
     def __init__(self, inplanes, squeeze_planes, expand1x1_planes, expand3x3_planes):
         super(Fire, self).__init__()

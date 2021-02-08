@@ -5,11 +5,13 @@ from typing import Union
 import torch
 from torch.nn.functional import normalize
 
+from auxiliary.settings import DEVICE
+
 
 class BaseModel:
 
-    def __init__(self, device: torch.device):
-        self._device = device
+    def __init__(self):
+        self._device = DEVICE
         self._network = None
         self.__optimizer = None
 

@@ -9,7 +9,7 @@ from PIL import Image
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from auxiliary.utils import get_device
+from auxiliary.settings import DEVICE
 from classes.data.datasets.TemporalColorConstancy import TemporalColorConstancy
 from classes.modules.multiframe.ctccnet.ModelCTCCNet import ModelCTCCNet
 from classes.modules.multiframe.ctccnetc4.ModelCTCCNetC4 import ModelCTCCNetC4
@@ -29,14 +29,13 @@ MODELS = {"ctccnet": ModelCTCCNet, "ctccnetc4": ModelCTCCNetC4}
 
 
 def main():
-    device = get_device()
     log_data = {"file_names": [], "preds1": [], "preds2": [], "preds3": [], "errors": [], "ground_truths": []}
 
     test_set = TemporalColorConstancy(mode="test", data_folder=DATA_FOLDER)
     test_loader = DataLoader(test_set, batch_size=1, shuffle=False, num_workers=20)
     print('Test set size: {}'.format(len(test_set)))
 
-    model = MODELS[MODEL_TYPE](device)
+    model = MODELS[MODEL_TYPE]()
 
     if os.path.exists(PATH_TO_PTH):
         print('\n Loading pretrained {} model stored at: {} \n'.format(MODEL_TYPE, PATH_TO_PTH))
@@ -54,7 +53,7 @@ def main():
                 break
 
             img, mimic, label, path_to_data = data
-            img, mimic, label = img.to(device), mimic.to(device), label.to(device)
+            img, mimic, label = img.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
 
             o1, o2, o3 = model.predict(img, mimic)
             pred1, pred2, pred3 = o1, torch.mul(o1, o2), torch.mul(torch.mul(o1, o2), o3)

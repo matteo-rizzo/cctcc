@@ -6,8 +6,8 @@ from classes.modules.multiframe.tccnet.TCCNet import TCCNet
 
 class ModelTCCNet(BaseModel):
 
-    def __init__(self, device: torch.device, hidden_size: int = 128, kernel_size: int = 5):
-        super().__init__(device)
+    def __init__(self, hidden_size: int = 128, kernel_size: int = 5):
+        super().__init__()
         self._network = TCCNet(hidden_size, kernel_size).to(self._device)
 
     def predict(self, sequence: torch.Tensor, mimic: torch.Tensor = None) -> torch.Tensor:

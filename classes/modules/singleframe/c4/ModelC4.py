@@ -9,8 +9,8 @@ from classes.modules.singleframe.c4.C4 import C4
 
 class ModelC4(BaseModel):
 
-    def __init__(self, device: torch.device):
-        super().__init__(device)
+    def __init__(self, DEVICE: torch.DEVICE):
+        super().__init__(DEVICE)
         self._network = C4().to(self._device)
 
     def predict(self, img: torch.Tensor, return_raw_predictions: bool = False) -> Union[torch.Tensor, tuple]:

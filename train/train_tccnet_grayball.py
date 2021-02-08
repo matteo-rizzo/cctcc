@@ -13,7 +13,7 @@ from classes.training.LossTracker import LossTracker
 from train.utils import print_metrics, log_metrics, log_time, log_experiment
 
 MODEL_TYPE = "tccnetc4"
-NUM_FOLDS = 15
+NUM_FOLDS = 3
 EPOCHS = 2000
 BATCH_SIZE = 1
 LEARNING_RATE = 0.00003
@@ -37,17 +37,21 @@ def main():
 
         log_experiment(MODEL_TYPE, "fold_{}".format(n), LEARNING_RATE, path_to_experiment_log)
 
-        print("\nLoading data for fold #{}:".format(n))
+        print("\n Loading data for FOLD {}:".format(n))
 
-        training_set = GrayBall(mode="train", fold_num=n)
-        training_set_size = len(training_set)
-        print("\t - Training set size: {}".format(training_set_size))
+        training_set = GrayBall(mode="train", fold=n, num_folds=NUM_FOLDS)
         train_loader = DataLoader(dataset=training_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=8)
 
-        test_set = GrayBall(mode="test", fold_num=n)
-        test_set_size = len(test_set)
-        print("\t - Test set size: {}\n".format(test_set_size))
+        test_set = GrayBall(mode="test", fold=n, num_folds=NUM_FOLDS)
         test_loader = DataLoader(dataset=test_set, batch_size=BATCH_SIZE, num_workers=8)
+
+        training_set_size, test_set_size = len(training_set), len(test_set)
+        print("\n TRAINING SET")
+        print("\t Size: ..... {}".format(training_set_size))
+        print("\t Scenes: ... {}".format(training_set.get_scenes()))
+        print("\n TEST SET")
+        print("\t Size: ..... {}".format(test_set_size))
+        print("\t Scenes: ... {}".format(test_set.get_scenes()))
 
         model = MODELS[MODEL_TYPE]()
 

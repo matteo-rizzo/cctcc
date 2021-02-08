@@ -39,14 +39,14 @@ def main():
     print("\nLoading data from '{}':".format(DATA_FOLDER))
 
     training_set = TemporalColorConstancy(mode="train", data_folder=DATA_FOLDER)
-    training_set_size = len(training_set)
-    print("Training set size: {}".format(training_set_size))
     train_loader = DataLoader(dataset=training_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=8)
 
     test_set = TemporalColorConstancy(mode="test", data_folder=DATA_FOLDER)
-    test_set_size = len(test_set)
-    print("Test set size: {}\n".format(test_set_size))
     test_loader = DataLoader(dataset=test_set, batch_size=BATCH_SIZE, num_workers=8)
+
+    training_set_size, test_set_size = len(training_set), len(test_set)
+    print("Training set size: ... {}".format(training_set_size))
+    print("Test set size: ....... {}\n".format(test_set_size))
 
     model = MODELS[MODEL_TYPE]()
 

@@ -63,7 +63,7 @@ def main():
     print(" Trimean ......... : {:.4f}".format(metrics["trimean"]))
     print(" Best 25% ........ : {:.4f}".format(metrics["bst25"]))
     print(" Worst 25% ....... : {:.4f}".format(metrics["wst25"]))
-    print(" Percentile 95 ... : {:.4f} \n".format(metrics["pct95"]))
+    print(" Percentile 95 ... : {:.4f} \n".format(metrics["wst5"]))
 
 
 if __name__ == '__main__':

@@ -85,7 +85,7 @@ def main():
     print(" Worst 25% ....... : [ s1: {:.4f} | s2: {:.4f} | s3: {:.4f} ]"
           .format(metrics1["wst25"], metrics2["wst25"], metrics3["wst25"]))
     print(" Percentile 95 ... : [ s1: {:.4f} | s2: {:.4f} | s3: {:.4f} ] \n"
-          .format(metrics1["pct95"], metrics2["pct95"], metrics3["pct95"]))
+          .format(metrics1["wst5"], metrics2["wst5"], metrics3["wst5"]))
 
     plt.plot(range(len(e1)), e1, label="AE1")
     plt.plot(range(len(e2)), e2, label="AE2")

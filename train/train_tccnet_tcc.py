@@ -1,7 +1,6 @@
 import os
 import time
 
-import pandas as pd
 import torch.utils.data
 from torch.utils.data import DataLoader
 
@@ -11,6 +10,7 @@ from classes.modules.multiframe.tccnet.ModelTCCNet import ModelTCCNet
 from classes.modules.multiframe.tccnetc4.ModelTCCNetC4 import ModelTCCNetC4
 from classes.training.Evaluator import Evaluator
 from classes.training.LossTracker import LossTracker
+from train.utils import log_experiment, log_metrics, print_metrics, log_time
 
 MODEL_TYPE = "tccnetc4"
 DATA_FOLDER = "tcc_split"
@@ -27,9 +27,13 @@ MODELS = {"tccnet": ModelTCCNet, "tccnetc4": ModelTCCNetC4}
 def main():
     evaluator = Evaluator()
 
-    path_to_log = os.path.join("logs", MODEL_TYPE + "_" + DATA_FOLDER + "_" + str(time.time()))
-    os.makedirs(path_to_log, exist_ok=True)
-    path_to_metrics = os.path.join(path_to_log, "metrics.csv")
+    path_to_log = os.path.join("logs", "tcc", MODEL_TYPE + "_" + DATA_FOLDER + "_" + str(time.time()))
+    os.makedirs(path_to_log)
+
+    path_to_metrics_log = os.path.join(path_to_log, "metrics.csv")
+    path_to_experiment_log = os.path.join(path_to_log, "experiment.json")
+
+    log_experiment(MODEL_TYPE, DATA_FOLDER, LEARNING_RATE, path_to_experiment_log)
 
     print("\nLoading data from '{}':".format(DATA_FOLDER))
 
@@ -56,9 +60,7 @@ def main():
 
     print('\n Training starts... \n')
 
-    best_val_loss = 100.0
-    best_mean, best_median, best_trimean = 100.0, 100.0, 100.0
-    best_bst25, best_wst25, best_pct95 = 100.0, 100.0, 100.0
+    best_val_loss, best_metrics = 100.0, evaluator.get_best_metrics()
     train_loss, val_loss = LossTracker(), LossTracker()
 
     for epoch in range(EPOCHS):
@@ -88,6 +90,7 @@ def main():
                       .format(epoch, EPOCHS, i, training_set_size, loss))
 
         train_time = time.time() - start
+        log_time(time=train_time, time_type="train", path_to_log=path_to_experiment_log)
 
         # --- Validation ---
 
@@ -125,6 +128,7 @@ def main():
             print("\n--------------------------------------------------------------\n")
 
         val_time = time.time() - start
+        log_time(time=val_time, time_type="val", path_to_log=path_to_experiment_log)
 
         metrics = evaluator.compute_metrics()
         print("\n********************************************************************")
@@ -135,33 +139,16 @@ def main():
             print(" Val Time ..... : {:.4f}".format(val_time))
             print(" Val Loss ..... : {:.4f}".format(val_loss.avg))
             print("....................................................................")
-            print(" Mean ......... : {:.4f} (Best: {:.4f})".format(metrics["mean"], best_mean))
-            print(" Median ....... : {:.4f} (Best: {:.4f})".format(metrics["median"], best_median))
-            print(" Trimean ...... : {:.4f} (Best: {:.4f})".format(metrics["trimean"], best_trimean))
-            print(" Best 25% ..... : {:.4f} (Best: {:.4f})".format(metrics["bst25"], best_bst25))
-            print(" Worst 25% .... : {:.4f} (Best: {:.4f})".format(metrics["wst25"], best_wst25))
-            print(" Worst 5% ..... : {:.4f} (Best: {:.4f})".format(metrics["pct95"], best_pct95))
+            print_metrics(metrics, best_metrics)
         print("********************************************************************\n")
 
         if 0 < val_loss.avg < best_val_loss:
             best_val_loss = val_loss.avg
-            best_mean, best_median, best_trimean = metrics["mean"], metrics["median"], metrics["trimean"]
-            best_bst25, best_wst25, best_pct95 = metrics["bst25"], metrics["wst25"], metrics["pct95"]
+            best_metrics = evaluator.update_best_metrics()
             print("Saving new best model... \n")
             model.save(os.path.join(path_to_log, "model.pth"))
 
-        log_metrics = pd.DataFrame({
-            "epoch": [epoch], "lr": [LEARNING_RATE],
-            "train_loss": [train_loss.avg], "val_loss": [val_loss.avg], "best_val_loss": [best_val_loss],
-            "best_mean": [best_mean], "best_median": best_median, "best_trimean": best_trimean,
-            "best_bst25": best_bst25, "best_wst25": best_wst25, "best_pct95": best_pct95,
-            **{k: [v] for k, v in metrics.items()}
-        })
-
-        log_metrics.to_csv(path_to_metrics,
-                           mode='a',
-                           header=log_metrics.keys() if not os.path.exists(path_to_metrics) else False,
-                           index=False)
+        log_metrics(train_loss.avg, val_loss.avg, metrics, best_metrics, path_to_metrics_log)
 
 
 if __name__ == '__main__':

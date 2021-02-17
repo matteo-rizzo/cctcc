@@ -103,7 +103,6 @@ def main():
                 print("[ Epoch: {}/{} - Batch: {}/{} ] | "
                       "[ Train L1: {:.4f} | Train L2: {:.4f} | Train L3: {:.4f} | Train MAL: {:.4f} ]"
                       .format(epoch, EPOCHS, i, training_set_size, l1.item(), l2.item(), l3.item(), mal.item()))
-                break
 
         train_time = time.time() - start
         log_time(time=train_time, time_type="train", path_to_log=path_to_experiment_log)
@@ -147,7 +146,6 @@ def main():
                         print("[ Epoch: {}/{} - Batch: {}/{} ] | "
                               "[ Val L1: {:.4f} | Val L2: {:.4f} | Val L3: {:.4f} | Val MAL: {:.4f} ]"
                               .format(epoch, EPOCHS, i, test_set_size, l1.item(), l2.item(), l3.item(), mal.item()))
-                    break
 
             print("\n--------------------------------------------------------------\n")
 
@@ -179,7 +177,6 @@ def main():
             model.save(os.path.join(path_to_log, "model.pth"))
 
         log_metrics(train_mal.avg, val_mal.avg, metrics, best_metrics, path_to_metrics_log)
-        exit()
 
 
 if __name__ == '__main__':

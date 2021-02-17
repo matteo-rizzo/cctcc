@@ -138,3 +138,5 @@ dmypy.json
 /dataset/grayball/sequences/
 /dataset/grayball/preprocessed/
 /logs/
+/scripts/
+/utils/

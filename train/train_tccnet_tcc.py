@@ -86,7 +86,7 @@ def main():
             train_loss.update(loss)
 
             if i % 5 == 0:
-                print("[ Epoch: {}/{} - Item: {}/{} ] | [ Train loss: {:.4f} ]"
+                print("[ Epoch: {}/{} - Batch: {}/{} ] | [ Train loss: {:.4f} ]"
                       .format(epoch, EPOCHS, i, training_set_size, loss))
 
         train_time = time.time() - start
@@ -122,7 +122,7 @@ def main():
                     evaluator.add_error(loss)
 
                     if i % 5 == 0:
-                        print("[ Epoch: {}/{} - Item: {}/{}] | Val loss: {:.4f} ]"
+                        print("[ Epoch: {}/{} - Batch: {}/{}] | Val loss: {:.4f} ]"
                               .format(epoch, EPOCHS, i, test_set_size, loss))
 
             print("\n--------------------------------------------------------------\n")

@@ -52,8 +52,8 @@ def main():
             if NUM_EXAMPLES != -1 and i >= NUM_EXAMPLES:
                 break
 
-            img, mimic, label, path_to_data = data
-            img, mimic, label = img.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
+            seq, mimic, label, path_to_data = data
+            seq, mimic, label = img.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
 
             o1, o2, o3 = model.predict(img, mimic)
             pred1, pred2, pred3 = o1, torch.mul(o1, o2), torch.mul(torch.mul(o1, o2), o3)

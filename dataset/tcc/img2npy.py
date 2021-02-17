@@ -11,11 +11,16 @@ FOLD_NUM = 2
 CV_METADATA_FILE = "3_folds_experiment.csv"
 
 USE_HIGH_PRECISION = False
-DOWN_SAMPLE = True
-TRUNCATE = False
+DOWN_SAMPLE = False
+TRUNCATE = True
 SUBSEQUENCE_LEN = 2
 
 BASE_PATH_TO_DATA = os.path.join("preprocessed", "fold_" + str(FOLD_NUM) if USE_CV_METADATA else "tcc_split")
+if DOWN_SAMPLE:
+    BASE_PATH_TO_DATA += "_ds"
+if TRUNCATE:
+    BASE_PATH_TO_DATA += "_{}f".format(SUBSEQUENCE_LEN)
+
 PATH_TO_NUMPY_SEQ = os.path.join(BASE_PATH_TO_DATA, "ndata_seq")
 PATH_TO_NUMPY_LABEL = os.path.join(BASE_PATH_TO_DATA, "nlabel")
 

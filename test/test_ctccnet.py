@@ -47,10 +47,10 @@ def main():
 
     with torch.no_grad():
         for i, data in enumerate(test_loader):
-            img, mimic, label, file_name = data
-            img, mimic, label = img.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
+            seq, mimic, label, file_name = data
+            seq, mimic, label = seq.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
 
-            o1, o2, o3 = model.predict(img, mimic)
+            o1, o2, o3 = model.predict(seq, mimic)
             p1, p2, p3 = o1, torch.mul(o1, o2), torch.mul(torch.mul(o1, o2), o3)
             l1 = model.get_angular_loss(p1, label).item()
             l2 = model.get_angular_loss(p2, label).item()

@@ -51,10 +51,10 @@ def main():
             if NUM_EXAMPLES != -1 and i >= NUM_EXAMPLES:
                 break
 
-            img, mimic, label, path_to_data = data
-            img, mimic, label = img.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
+            seq, mimic, label, path_to_data = data
+            seq, mimic, label = seq.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
 
-            pred = model.predict(img, mimic)
+            pred = model.predict(seq, mimic)
             loss = model.get_angular_loss(pred, label).item()
 
             log_data["errors"].append(loss)

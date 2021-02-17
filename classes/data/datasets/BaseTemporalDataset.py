@@ -18,24 +18,24 @@ class BaseTemporalDataset(data.Dataset):
         path_to_sequence = self._paths_to_items[index]
         label_path = path_to_sequence.replace(self._data_dir, self._label_dir)
 
-        img = np.array(np.load(path_to_sequence), dtype='float32')
+        seq = np.array(np.load(path_to_sequence), dtype='float32')
         illuminant = np.array(np.load(label_path), dtype='float32')
-        mimic = torch.from_numpy(self.__da.augment_mimic(img).transpose((0, 3, 1, 2)).copy())
+        mimic = torch.from_numpy(self.__da.augment_mimic(seq).transpose((0, 3, 1, 2)).copy())
 
         if self._mode == "train":
-            img, color_bias = self.__da.augment_sequence(img, illuminant)
+            seq, color_bias = self.__da.augment_sequence(seq, illuminant)
             color_bias = np.array([[[color_bias[0][0], color_bias[1][1], color_bias[2][2]]]], dtype=np.float32)
             mimic = torch.mul(mimic, torch.from_numpy(color_bias).view(1, 3, 1, 1))
         else:
-            img = self.__da.resize_sequence(img)
+            seq = self.__da.resize_sequence(seq)
 
-        img = np.clip(img, 0.0, 255.0) * (1.0 / 255)
-        img = self.__da.hwc_chw(self.__da.gamma_correct(self.__da.brg_to_rgb(img)))
+        seq = np.clip(seq, 0.0, 255.0) * (1.0 / 255)
+        seq = self.__da.hwc_chw(self.__da.gamma_correct(self.__da.brg_to_rgb(seq)))
 
-        img = torch.from_numpy(img.copy())
+        seq = torch.from_numpy(seq.copy())
         illuminant = torch.from_numpy(illuminant.copy())
 
-        return img, mimic, illuminant, path_to_sequence
+        return seq, mimic, illuminant, path_to_sequence
 
     def __len__(self) -> int:
         return len(self._paths_to_items)

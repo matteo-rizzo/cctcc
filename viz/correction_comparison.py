@@ -21,7 +21,7 @@ DATA_FOLDER = "tcc_split"
 NUM_EXAMPLES = -1
 W = -1
 
-BASE_PATH_TO_PTH = os.path.join("trained_models", "improved", "best_full_seq")
+BASE_PATH_TO_PTH = os.path.join("trained_models", DATA_FOLDER)
 DATA_TYPE = "test"
 PATH_TO_DATASET = os.path.join("dataset", "tcc", "raw", DATA_TYPE)
 LOG_DIR = os.path.join("results", "models_comparison_" + str(NUM_EXAMPLES) + "_" + DATA_TYPE + "_" + str(time.time()))
@@ -56,11 +56,14 @@ def main():
     with torch.no_grad():
         for i, data in enumerate(test_loader):
 
+            if i < 23 or i > 24:
+                continue
+
             if NUM_EXAMPLES != -1 and i >= NUM_EXAMPLES:
                 break
 
-            img, mimic, label, path_to_data = data
-            img, mimic, label = img.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
+            seq, mimic, label, path_to_data = data
+            seq, mimic, label = seq.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
 
             log_data["file_names"].append(path_to_data[0])
             log_data["ground_truths"].append(label.cpu().numpy())
@@ -94,7 +97,7 @@ def main():
             losses = {}
 
             for j, (model_type, model) in enumerate(models.items()):
-                pred = model.predict(img, mimic)
+                pred = model.predict(seq, mimic)
                 if isinstance(pred, tuple):
                     pred = torch.mul(torch.mul(pred[0], pred[1]), pred[2])
                 loss = model.get_angular_loss(pred, label).item()

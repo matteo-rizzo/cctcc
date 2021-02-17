@@ -10,7 +10,7 @@ from classes.modules.multiframe.ctccnet.ModelCTCCNet import ModelCTCCNet
 from classes.modules.multiframe.ctccnetc4.ModelCTCCNetC4 import ModelCTCCNetC4
 from classes.training.Evaluator import Evaluator
 from classes.training.LossTracker import LossTracker
-from train.utils import log_experiment, print_metrics, log_metrics
+from train.utils import log_experiment, print_metrics, log_metrics, log_time
 
 MODEL_TYPE = "ctccnetc4"
 DATA_FOLDER = "tcc_split"
@@ -100,11 +100,13 @@ def main():
             train_mal.update(mal.item())
 
             if i % 5 == 0:
-                print("[ Epoch: {}/{} - Item: {}/{} ] | "
+                print("[ Epoch: {}/{} - Batch: {}/{} ] | "
                       "[ Train L1: {:.4f} | Train L2: {:.4f} | Train L3: {:.4f} | Train MAL: {:.4f} ]"
                       .format(epoch, EPOCHS, i, training_set_size, l1.item(), l2.item(), l3.item(), mal.item()))
+                break
 
         train_time = time.time() - start
+        log_time(time=train_time, time_type="train", path_to_log=path_to_experiment_log)
 
         # --- Validation ---
 
@@ -142,13 +144,15 @@ def main():
                     evaluator.add_error(l3.item())
 
                     if i % 5 == 0:
-                        print("[ Epoch: {}/{} - Item: {}/{} ] | "
+                        print("[ Epoch: {}/{} - Batch: {}/{} ] | "
                               "[ Val L1: {:.4f} | Val L2: {:.4f} | Val L3: {:.4f} | Val MAL: {:.4f} ]"
                               .format(epoch, EPOCHS, i, test_set_size, l1.item(), l2.item(), l3.item(), mal.item()))
+                    break
 
             print("\n--------------------------------------------------------------\n")
 
         val_time = time.time() - start
+        log_time(time=val_time, time_type="val", path_to_log=path_to_experiment_log)
 
         metrics = evaluator.compute_metrics()
         print("\n********************************************************************")
@@ -175,6 +179,7 @@ def main():
             model.save(os.path.join(path_to_log, "model.pth"))
 
         log_metrics(train_mal.avg, val_mal.avg, metrics, best_metrics, path_to_metrics_log)
+        exit()
 
 
 if __name__ == '__main__':

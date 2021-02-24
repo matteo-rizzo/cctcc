@@ -23,7 +23,7 @@ W = -1
 
 PATH_TO_PTH = os.path.join("trained_models", "improved", "best_full_seq", MODEL_TYPE, DATA_FOLDER, "model.pth")
 PATH_TO_TEST = os.path.join("dataset", "tcc", "raw", "test")
-LOG_DIR = os.path.join("results", MODEL_TYPE + "_" + str(NUM_EXAMPLES) + "viz_" + str(time.time()))
+LOG_DIR = os.path.join("vis", "corrections", "{}_{}_{}".format(MODEL_TYPE, NUM_EXAMPLES, time.time()))
 
 MODELS = {"ctccnet": ModelCTCCNet, "ctccnetc4": ModelCTCCNetC4}
 
@@ -53,9 +53,9 @@ def main():
                 break
 
             seq, mimic, label, path_to_data = data
-            seq, mimic, label = img.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
+            seq, mimic, label = seq.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
 
-            o1, o2, o3 = model.predict(img, mimic)
+            o1, o2, o3 = model.predict(seq, mimic)
             pred1, pred2, pred3 = o1, torch.mul(o1, o2), torch.mul(torch.mul(o1, o2), o3)
             loss1 = model.get_angular_loss(pred1, label).item()
             loss2 = model.get_angular_loss(pred2, label).item()

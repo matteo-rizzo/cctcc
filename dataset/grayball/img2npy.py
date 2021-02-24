@@ -8,7 +8,7 @@ USE_HIGH_PRECISION = False
 TRUNCATE = False
 SUBSEQUENCE_LEN = 2
 
-BASE_PATH_TO_DATA = os.path.join("preprocessing")
+BASE_PATH_TO_DATA = os.path.join("preprocessed")
 BASE_PATH_TO_DATASET = os.path.join("raw", "5f_seqs")
 GROUND_TRUTH_FILE = "ground_truth.txt"
 

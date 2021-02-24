@@ -14,8 +14,8 @@ from train.utils import print_metrics, log_metrics, log_time, log_experiment
 
 MODEL_TYPE = "tccnetc4"
 NUM_FOLDS = 3
-EPOCHS = 2000
-BATCH_SIZE = 1
+EPOCHS = 50
+BATCH_SIZE = 16
 LEARNING_RATE = 0.00003
 
 RELOAD_CHECKPOINT = False

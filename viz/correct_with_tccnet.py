@@ -22,7 +22,7 @@ W = -1
 
 PATH_TO_PTH = os.path.join("trained_models", "improved", "best_full_seq", MODEL_TYPE, DATA_FOLDER, "model.pth")
 PATH_TO_TEST = os.path.join("dataset", "tcc", "raw", "test")
-LOG_DIR = os.path.join("results", MODEL_TYPE + "_" + str(NUM_EXAMPLES) + "viz_" + str(time.time()))
+LOG_DIR = os.path.join("vis", "corrections", "{}_{}_{}".format(MODEL_TYPE, NUM_EXAMPLES, time.time()))
 
 MODELS = {"tccnet": ModelTCCNet, "tccnetc4": ModelTCCNetC4}
 

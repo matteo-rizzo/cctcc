@@ -14,8 +14,8 @@ from train.utils import log_experiment, print_metrics, log_metrics, log_time
 
 MODEL_TYPE = "ctccnet"
 NUM_FOLDS = 3
-BATCH_SIZE = 1
-EPOCHS = 2000
+BATCH_SIZE = 16
+EPOCHS = 50
 LEARNING_RATE = 0.00003
 BASE_PATH_TO_PTH_SUBMODULE = os.path.join("trained_models", "gb5", "tccnet")
 

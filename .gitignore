@@ -136,7 +136,8 @@ dmypy.json
 /dataset/grayball/images_gt_order.lst
 /dataset/grayball/preprocessed/
 /dataset/grayball/sequences/
-/dataset/grayball/preprocessed/
 /logs/
 /scripts/
 /utils/
+/vis/corrections/
+/dataset/grayball/gifs/

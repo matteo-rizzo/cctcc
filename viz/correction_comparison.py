@@ -24,7 +24,7 @@ W = -1
 BASE_PATH_TO_PTH = os.path.join("trained_models", DATA_FOLDER)
 DATA_TYPE = "test"
 PATH_TO_DATASET = os.path.join("dataset", "tcc", "raw", DATA_TYPE)
-LOG_DIR = os.path.join("results", "models_comparison_" + str(NUM_EXAMPLES) + "_" + DATA_TYPE + "_" + str(time.time()))
+LOG_DIR = os.path.join("vis", "corrections", "comparison_{}_{}".format(DATA_TYPE, NUM_EXAMPLES, time.time()))
 
 MODELS = {"tccnet": ModelTCCNet, "tccnetc4": ModelTCCNetC4, "ctccnet": ModelCTCCNet, "ctccnetc4": ModelCTCCNetC4}
 

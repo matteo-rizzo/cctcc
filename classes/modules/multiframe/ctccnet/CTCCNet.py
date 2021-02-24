@@ -9,23 +9,24 @@ class CTCCNet(nn.Module):
 
     def __init__(self):
         super().__init__()
-
         self.__device = DEVICE
-
         self.submodel1 = TCCNet()
         self.submodel2 = TCCNet()
         self.submodel3 = TCCNet()
 
     def __correct_sequence(self, seq: torch.Tensor, illuminant: torch.Tensor) -> torch.Tensor:
+        # Linear to non-linear illuminant
+        illuminant = illuminant.pow(1.0 / 2.2).unsqueeze(2).unsqueeze(3).unsqueeze(1)
+
         # Correct the image
-        nonlinear_illuminant = illuminant.pow(1.0 / 2.2).unsqueeze(2).unsqueeze(3).unsqueeze(0)
-        correction = (nonlinear_illuminant * torch.sqrt(torch.Tensor([3])).to(self.__device))
-        correction = correction.expand(-1, seq.shape[1], -1, -1, -1)
+        correction = (illuminant * torch.sqrt(torch.Tensor([3])).to(self.__device))
+        correction = correction.expand(seq.shape[0], seq.shape[1], -1, -1, -1)
         corrected_seq = torch.div(seq, correction + 1e-10)
 
         # Normalize the image
         max_seq = torch.max(torch.max(torch.max(corrected_seq, dim=2)[0], dim=2)[0], dim=2)[0]
         normalized_seq = torch.div(corrected_seq, max_seq.unsqueeze(2).unsqueeze(2).unsqueeze(2) + 1e-10)
+
         return normalized_seq
 
     def forward(self, a: torch.Tensor, b: torch.Tensor) -> tuple:

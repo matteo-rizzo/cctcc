@@ -10,10 +10,10 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from auxiliary.settings import DEVICE
+from auxiliary.utils import correct, linear_to_nonlinear
 from classes.data.datasets.TemporalColorConstancy import TemporalColorConstancy
 from classes.modules.multiframe.ctccnet.ModelCTCCNet import ModelCTCCNet
 from classes.modules.multiframe.ctccnetc4.ModelCTCCNetC4 import ModelCTCCNetC4
-from viz.utils import correct, linear_to_nonlinear
 
 MODEL_TYPE = "ctccnet"
 DATA_FOLDER = "tcc_split"
@@ -48,11 +48,10 @@ def main():
     print("\n *** Generating visualizations for model {} *** \n".format(MODEL_TYPE))
 
     with torch.no_grad():
-        for i, data in enumerate(test_loader):
+        for i, (seq, mimic, label, path_to_data) in enumerate(test_loader):
             if NUM_EXAMPLES != -1 and i >= NUM_EXAMPLES:
                 break
 
-            seq, mimic, label, path_to_data = data
             seq, mimic, label = seq.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
 
             o1, o2, o3 = model.predict(seq, mimic)

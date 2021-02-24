@@ -4,6 +4,8 @@ import random
 import cv2
 import numpy as np
 
+from auxiliary.utils import rgb_to_bgr
+
 
 class DataAugmenter:
 
@@ -14,31 +16,7 @@ class DataAugmenter:
         self.__color = 0.0
 
     @staticmethod
-    def __rgb_to_bgr(color: np.array) -> np.array:
-        return color[::-1]
-
-    @staticmethod
-    def brg_to_rgb(img: np.array) -> np.array:
-        if len(img.shape) == 4:
-            return img[:, :, :, ::-1]
-        elif len(img.shape) == 3:
-            return img[:, :, ::-1]
-        raise ValueError("Bad image shape detected in BRG to RGB conversion: {}".format(img.shape))
-
-    @staticmethod
-    def hwc_chw(img: np.array) -> np.array:
-        if len(img.shape) == 4:
-            return img.transpose(0, 3, 1, 2)
-        elif len(img.shape) == 3:
-            return img.transpose(2, 0, 1)
-        raise ValueError("Bad image shape detected in HWC to CHW conversion: {}".format(img.shape))
-
-    @staticmethod
-    def gamma_correct(img:np.array, gamma:float=2.2) -> np.array:
-        return np.power(img, (1.0 / gamma))
-
-    @staticmethod
-    def __rotate_image(image: np.array, angle: float) -> np.array:
+    def __rotate_image(image: np.ndarray, angle: float) -> np.ndarray:
         """
         Rotates an OpenCV 2 / NumPy image about it's centre by the given angle (in degrees).
         The returned image will be large enough to hold the entire new image, with a black background
@@ -110,7 +88,7 @@ class DataAugmenter:
         return bb_w - 2 * x, bb_h - 2 * y
 
     @staticmethod
-    def __crop_around_center(image: np.array, width: float, height: float) -> np.array:
+    def __crop_around_center(image: np.ndarray, width: float, height: float) -> np.ndarray:
         """ Given a NumPy / OpenCV 2 image, crops it to the given width and height around it's centre point """
 
         image_size = (image.shape[1], image.shape[0])
@@ -124,27 +102,27 @@ class DataAugmenter:
 
         return image[y1:y2, x1:x2]
 
-    def __rotate_and_crop(self, image: np.array, angle: float) -> np.array:
+    def __rotate_and_crop(self, image: np.ndarray, angle: float) -> np.ndarray:
         if angle is None:
             angle = self.__get_random_angle()
         width, height = image.shape[:2]
         target_width, target_height = self.__largest_rotated_rect(width, height, math.radians(angle))
         return self.__crop_around_center(self.__rotate_image(image, angle), target_width, target_height)
 
-    def __rescale(self, img: np.array, scale: float) -> np.array:
+    def __rescale(self, img: np.ndarray, scale: float) -> np.ndarray:
         if scale is None:
             scale = self.__get_random_scale(img)
         start_x = random.randrange(0, img.shape[0] - scale + 1)
         start_y = random.randrange(0, img.shape[1] - scale + 1)
         return img[start_x:start_x + scale, start_y:start_y + scale]
 
-    def resize(self, img: np.array) -> np.array:
+    def resize(self, img: np.ndarray) -> np.ndarray:
         return cv2.resize(img, self.__input_size)
 
-    def resize_sequence(self, img: np.array) -> np.array:
+    def resize_sequence(self, img: np.ndarray) -> np.ndarray:
         return np.stack([self.resize(img[i]) for i in range(img.shape[0])])
 
-    def __get_random_scale(self, img: np.array) -> float:
+    def __get_random_scale(self, img: np.ndarray) -> float:
         scale = math.exp(random.random() * math.log(self.__scale[1] / self.__scale[0])) * self.__scale[0]
         return min(max(int(round(min(img.shape[:2]) * scale)), 10), min(img.shape[:2]))
 
@@ -158,7 +136,7 @@ class DataAugmenter:
         return color_bias
 
     @staticmethod
-    def __random_flip(img: np.array, p: int = None) -> np.array:
+    def __random_flip(img: np.ndarray, p: int = None) -> np.ndarray:
         """
         Perform random left/right flip with probability p (defaults to 0.5)
         @param img: the image to be flipped
@@ -170,27 +148,27 @@ class DataAugmenter:
         return img[:, ::-1].astype(np.float32) if p else img.astype(np.float32)
 
     def __augment_image(self,
-                        img: np.array,
-                        color_bias: np.array = None,
+                        img: np.ndarray,
+                        color_bias: np.ndarray = None,
                         scale: float = None,
                         angle: float = None,
-                        flip_p: int = None) -> np.array:
+                        flip_p: int = None) -> np.ndarray:
         img = self.__random_flip(self.resize(self.__rotate_and_crop(self.__rescale(img, scale), angle)), flip_p)
         return np.clip(self.__apply_color_bias(img, color_bias), 0, 255)
 
-    def __augment_illuminant(self, illuminant: np.array, color_bias: np.array = None) -> np.array:
+    def __augment_illuminant(self, illuminant: np.ndarray, color_bias: np.ndarray = None) -> np.ndarray:
         if color_bias is None:
             color_bias = self.get_random_color_bias()
-        illuminant = self.__rgb_to_bgr(illuminant)
+        illuminant = rgb_to_bgr(illuminant)
         new_illuminant = np.array([[illuminant[j] * color_bias[i, j] for j in range(3)] for i in range(3)])
-        return self.__rgb_to_bgr(np.clip(new_illuminant, 0.01, 100))
+        return rgb_to_bgr(np.clip(new_illuminant, 0.01, 100))
 
-    def __apply_color_bias(self, img: np.array, color_bias: np.array) -> np.array:
+    def __apply_color_bias(self, img: np.ndarray, color_bias: np.ndarray) -> np.ndarray:
         if color_bias is None:
             color_bias = self.get_random_color_bias()
         return img * np.array([[[color_bias[0][0], color_bias[1][1], color_bias[2][2]]]], dtype=np.float32)
 
-    def augment_sequence(self, images: np.array, illuminant: np.array) -> tuple:
+    def augment_sequence(self, images: np.ndarray, illuminant: np.ndarray) -> tuple:
         color_bias = self.get_random_color_bias()
         scale = self.__get_random_scale(images[0])
         angle = self.__get_random_angle()
@@ -203,7 +181,7 @@ class DataAugmenter:
 
         return np.stack(augmented_frames), color_bias
 
-    def augment_mimic(self, img: np.array) -> np.array:
+    def augment_mimic(self, img: np.ndarray) -> np.ndarray:
         if len(img.shape) == 4:
             num_steps = img.shape[0]
             img = img[-1]

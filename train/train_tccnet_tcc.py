@@ -5,12 +5,12 @@ import torch.utils.data
 from torch.utils.data import DataLoader
 
 from auxiliary.settings import DEVICE
+from auxiliary.utils import log_experiment, log_metrics, print_metrics, log_time
 from classes.data.datasets.TemporalColorConstancy import TemporalColorConstancy
 from classes.modules.multiframe.tccnet.ModelTCCNet import ModelTCCNet
 from classes.modules.multiframe.tccnetc4.ModelTCCNetC4 import ModelTCCNetC4
 from classes.training.Evaluator import Evaluator
 from classes.training.LossTracker import LossTracker
-from train.utils import log_experiment, log_metrics, print_metrics, log_time
 
 MODEL_TYPE = "tccnetc4"
 DATA_FOLDER = "tcc_split"

@@ -9,12 +9,12 @@ from PIL import Image
 from torch.utils.data import DataLoader
 
 from auxiliary.settings import DEVICE
+from auxiliary.utils import correct, linear_to_nonlinear
 from classes.data.datasets.TemporalColorConstancy import TemporalColorConstancy
 from classes.modules.multiframe.ctccnet.ModelCTCCNet import ModelCTCCNet
 from classes.modules.multiframe.ctccnetc4.ModelCTCCNetC4 import ModelCTCCNetC4
 from classes.modules.multiframe.tccnet.ModelTCCNet import ModelTCCNet
 from classes.modules.multiframe.tccnetc4.ModelTCCNetC4 import ModelTCCNetC4
-from viz.utils import correct, linear_to_nonlinear
 
 DATA_FOLDER = "tcc_split"
 
@@ -54,15 +54,10 @@ def main():
     print("\n *** Generating comparison of visualizations *** \n")
 
     with torch.no_grad():
-        for i, data in enumerate(test_loader):
-
-            if i < 23 or i > 24:
-                continue
-
+        for i, (seq, mimic, label, path_to_data) in enumerate(test_loader):
             if NUM_EXAMPLES != -1 and i >= NUM_EXAMPLES:
                 break
 
-            seq, mimic, label, path_to_data = data
             seq, mimic, label = seq.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
 
             log_data["file_names"].append(path_to_data[0])
@@ -146,7 +141,6 @@ def main():
             print("Item {}: {} - AE: [ {} ]".format(i, path_to_data[0].split(os.sep)[-1],
                                                     " | ".join(["{}: {:.4f}".format(m, l) for m, l in losses.items()])))
 
-            # fig.tight_layout(pad=0.5)
             fig.savefig(os.path.join(path_to_saved, "comparison.png"), bbox_inches='tight', dpi=200)
             plt.close(fig)
 

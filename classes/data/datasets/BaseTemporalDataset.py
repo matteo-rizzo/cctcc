@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import torch.utils.data as data
 
+from auxiliary.utils import hwc_chw, gamma_correct, brg_to_rgb
 from classes.data.DataAugmenter import DataAugmenter
 
 
@@ -30,7 +31,7 @@ class BaseTemporalDataset(data.Dataset):
             seq = self.__da.resize_sequence(seq)
 
         seq = np.clip(seq, 0.0, 255.0) * (1.0 / 255)
-        seq = self.__da.hwc_chw(self.__da.gamma_correct(self.__da.brg_to_rgb(seq)))
+        seq = hwc_chw(gamma_correct(brg_to_rgb(seq)))
 
         seq = torch.from_numpy(seq.copy())
         illuminant = torch.from_numpy(illuminant.copy())

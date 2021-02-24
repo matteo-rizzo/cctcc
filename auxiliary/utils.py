@@ -1,7 +1,13 @@
 import json
 import os
 
+import numpy as np
 import pandas as pd
+import torch
+import torchvision.transforms.functional as TF
+from PIL import Image
+
+from auxiliary.settings import get_device
 
 
 def log_experiment(model_type: str, data_folder: str, lr: float, path_to_log: str):
@@ -46,3 +52,53 @@ def print_metrics(current_metrics: dict, best_metrics: dict):
     print(" Best 25% ..... : {:.4f} (Best: {:.4f})".format(current_metrics["bst25"], best_metrics["bst25"]))
     print(" Worst 25% .... : {:.4f} (Best: {:.4f})".format(current_metrics["wst25"], best_metrics["wst25"]))
     print(" Worst 5% ..... : {:.4f} (Best: {:.4f})".format(current_metrics["wst5"], best_metrics["wst5"]))
+
+
+def correct(img: np.ndarray, illuminant: torch.Tensor) -> Image:
+    """
+    Corrects the color of the illuminant of a linear image based on an estimated (linear) illuminant
+    @param img: a linear image
+    @param illuminant: a linear illuminant
+    @return: a non-linear color-corrected version of the input image
+    """
+    img = TF.to_tensor(img)
+
+    # Correct the image
+    correction = illuminant.unsqueeze(2).unsqueeze(3) * torch.sqrt(torch.Tensor([3])).to(get_device())
+    corrected_img = torch.div(img, correction + 1e-10)
+
+    # Normalize the image
+    max_img = torch.max(torch.max(torch.max(corrected_img, dim=1)[0], dim=1)[0], dim=1)[0] + 1e-10
+    max_img = max_img.unsqueeze(1).unsqueeze(1).unsqueeze(1)
+    normalized_img = torch.div(corrected_img, max_img)
+
+    linear_image = torch.pow(normalized_img, 1.0 / 2.2)
+    return TF.to_pil_image(linear_image.squeeze(), mode="RGB")
+
+
+def linear_to_nonlinear(img: Image) -> Image:
+    return TF.to_pil_image(torch.pow(TF.to_tensor(img), 1.0 / 2.2).squeeze(), mode="RGB")
+
+
+def rgb_to_bgr(color: np.ndarray) -> np.ndarray:
+    return color[::-1]
+
+
+def brg_to_rgb(img: np.ndarray) -> np.ndarray:
+    if len(img.shape) == 4:
+        return img[:, :, :, ::-1]
+    elif len(img.shape) == 3:
+        return img[:, :, ::-1]
+    raise ValueError("Bad image shape detected in BRG to RGB conversion: {}".format(img.shape))
+
+
+def hwc_chw(img: np.ndarray) -> np.ndarray:
+    if len(img.shape) == 4:
+        return img.transpose(0, 3, 1, 2)
+    elif len(img.shape) == 3:
+        return img.transpose(2, 0, 1)
+    raise ValueError("Bad image shape detected in HWC to CHW conversion: {}".format(img.shape))
+
+
+def gamma_correct(img: np.ndarray, gamma: float = 2.2) -> np.ndarray:
+    return np.power(img, (1.0 / gamma))

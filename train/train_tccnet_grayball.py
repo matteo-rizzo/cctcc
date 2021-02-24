@@ -5,12 +5,12 @@ import torch.utils.data
 from torch.utils.data import DataLoader
 
 from auxiliary.settings import DEVICE
+from auxiliary.utils import print_metrics, log_metrics, log_time, log_experiment
 from classes.data.datasets.GrayBall import GrayBall
 from classes.modules.multiframe.tccnet.ModelTCCNet import ModelTCCNet
 from classes.modules.multiframe.tccnetc4.ModelTCCNetC4 import ModelTCCNetC4
 from classes.training.Evaluator import Evaluator
 from classes.training.LossTracker import LossTracker
-from train.utils import print_metrics, log_metrics, log_time, log_experiment
 
 MODEL_TYPE = "tccnetc4"
 NUM_FOLDS = 3

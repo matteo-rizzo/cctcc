@@ -49,7 +49,7 @@ def process_sequence(frame_idx: int, scene_paths: list, path_to_seq: str, images
     plt.clf()
 
 
-def angular_error(f1: np.array, f2: np.array) -> float:
+def angular_error(f1: np.ndarray, f2: np.ndarray) -> float:
     return np.arccos(np.dot(f1, f2) / (np.linalg.norm(f1) * np.linalg.norm(f2))) * (180 / math.pi)
 
 

@@ -1,6 +1,7 @@
 import os
 import time
 
+import numpy as np
 import scipy.io as scio
 import torch.utils.data
 from torch.utils.data import DataLoader
@@ -17,7 +18,7 @@ Results on the TCC Split:
     * TCCNetC4 : mean: 1.7171, med: 1.0847, tri: 1.2002, bst: 0.1982, wst: 4.3331, pct: 6.0090
 """
 
-MODEL_TYPE = "tccnetc4"
+MODEL_TYPE = "tccnet"
 DATA_FOLDER = "tcc_split"
 PATH_TO_PTH = os.path.join("trained_models", "full_seq", MODEL_TYPE, DATA_FOLDER, "model.pth")
 
@@ -41,16 +42,21 @@ def main():
         raise ValueError("No pretrained {} model found at {}".format(MODEL_TYPE, PATH_TO_PTH))
 
     model.evaluation_mode()
-    model.print_network()
 
     print("\n *** Testing model {} on {} *** \n".format(MODEL_TYPE, DATA_FOLDER))
+
+    inference_times = []
 
     with torch.no_grad():
         for i, data in enumerate(test_loader):
             seq, mimic, label, file_name = data
             seq, mimic, label = seq.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
 
+            tic = time.perf_counter()
             pred = model.predict(seq, mimic)
+            toc = time.perf_counter()
+            inference_times.append(toc - tic)
+
             loss = model.get_angular_loss(pred, label).item()
 
             evaluator.add_error(loss)
@@ -60,6 +66,8 @@ def main():
 
             if i % 10 == 0:
                 print("Item {}: {}, AE: {:.4f}".format(i, file_name[0].split(os.sep)[-1], loss))
+
+    print(" \n Average inference time: {:.4f} \n".format(np.mean(inference_times)))
 
     log_data["errors"] = evaluator.get_errors()
     scio.savemat(file_name=os.path.join("results", MODEL_TYPE + "_" + str(time.time()) + ".mat"), mdict=log_data)

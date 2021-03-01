@@ -2,6 +2,7 @@ import os
 import time
 
 import matplotlib.pyplot as plt
+import numpy as np
 import scipy.io as scio
 import torch.utils.data
 
@@ -18,7 +19,7 @@ Results on the TCC Split:
     * CTCCNetC4 : mean: 1.6971, med: 0.9229, tri: 1.1347, bst: 0.2197, wst: 4.3621, pct: 6.0535
 """
 
-MODEL_TYPE = "ctccnet"
+MODEL_TYPE = "ctccnetc4"
 DATA_FOLDER = "tcc_split"
 PATH_TO_PTH = os.path.join("trained_models", "full_seq", MODEL_TYPE, DATA_FOLDER, "model.pth")
 
@@ -45,12 +46,18 @@ def main():
 
     print("\n *** Testing model {} on {} *** \n".format(MODEL_TYPE, DATA_FOLDER))
 
+    inference_times = []
+
     with torch.no_grad():
         for i, data in enumerate(test_loader):
             seq, mimic, label, file_name = data
             seq, mimic, label = seq.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
 
+            tic = time.perf_counter()
             o1, o2, o3 = model.predict(seq, mimic)
+            toc = time.perf_counter()
+            inference_times.append(toc - tic)
+
             p1, p2, p3 = o1, torch.mul(o1, o2), torch.mul(torch.mul(o1, o2), o3)
             l1 = model.get_angular_loss(p1, label).item()
             l2 = model.get_angular_loss(p2, label).item()
@@ -67,6 +74,8 @@ def main():
             if i % 10 == 0:
                 print("Item {}: {} - [ L1: {:.4f} | L2: {:.4f} | L3: {:.4f} ]"
                       .format(i, file_name[0].split(os.sep)[-1], l1, l2, l3))
+
+    print(" \n Average inference time: {:.4f} \n".format(np.mean(inference_times)))
 
     e1, e2, e3 = eval1.get_errors(), eval2.get_errors(), eval3.get_errors()
 

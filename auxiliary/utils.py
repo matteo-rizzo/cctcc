@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Dict, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -45,13 +46,37 @@ def log_metrics(train_loss: float, val_loss: float, current_metrics: dict, best_
                     index=False)
 
 
-def print_metrics(current_metrics: dict, best_metrics: dict):
+def print_val_metrics(current_metrics: dict, best_metrics: dict):
     print(" Mean ......... : {:.4f} (Best: {:.4f})".format(current_metrics["mean"], best_metrics["mean"]))
     print(" Median ....... : {:.4f} (Best: {:.4f})".format(current_metrics["median"], best_metrics["median"]))
     print(" Trimean ...... : {:.4f} (Best: {:.4f})".format(current_metrics["trimean"], best_metrics["trimean"]))
     print(" Best 25% ..... : {:.4f} (Best: {:.4f})".format(current_metrics["bst25"], best_metrics["bst25"]))
     print(" Worst 25% .... : {:.4f} (Best: {:.4f})".format(current_metrics["wst25"], best_metrics["wst25"]))
     print(" Worst 5% ..... : {:.4f} (Best: {:.4f})".format(current_metrics["wst5"], best_metrics["wst5"]))
+
+
+def print_test_metrics(metrics: Union[Dict, Tuple]):
+    if isinstance(metrics, Dict):
+        print("\n Mean ............ : {:.4f}".format(metrics["mean"]))
+        print(" Median .......... : {:.4f}".format(metrics["median"]))
+        print(" Trimean ......... : {:.4f}".format(metrics["trimean"]))
+        print(" Best 25% ........ : {:.4f}".format(metrics["bst25"]))
+        print(" Worst 25% ....... : {:.4f}".format(metrics["wst25"]))
+        print(" Percentile 95 ... : {:.4f} \n".format(metrics["wst5"]))
+    else:
+        metrics1, metrics2, metrics3 = metrics
+        print("\n Mean ............ : [ s1: {:.4f} | s2: {:.4f} | s3: {:.4f} ]"
+              .format(metrics1["mean"], metrics2["mean"], metrics3["mean"]))
+        print(" Median .......... : [ s1: {:.4f} | s2: {:.4f} | s3: {:.4f} ]"
+              .format(metrics1["median"], metrics2["median"], metrics3["median"]))
+        print(" Trimean ......... : [ s1: {:.4f} | s2: {:.4f} | s3: {:.4f} ]"
+              .format(metrics1["trimean"], metrics2["trimean"], metrics3["trimean"]))
+        print(" Best 25% ........ : [ s1: {:.4f} | s2: {:.4f} | s3: {:.4f} ]"
+              .format(metrics1["bst25"], metrics2["bst25"], metrics3["bst25"]))
+        print(" Worst 25% ....... : [ s1: {:.4f} | s2: {:.4f} | s3: {:.4f} ]"
+              .format(metrics1["wst25"], metrics2["wst25"], metrics3["wst25"]))
+        print(" Percentile 95 ... : [ s1: {:.4f} | s2: {:.4f} | s3: {:.4f} ] \n"
+              .format(metrics1["wst5"], metrics2["wst5"], metrics3["wst5"]))
 
 
 def correct(img: np.ndarray, illuminant: torch.Tensor) -> Image:

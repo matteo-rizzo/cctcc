@@ -33,7 +33,7 @@ def main():
     log_data = {"file_names": [], "ground_truths": []}
     models = {}
 
-    test_set = TemporalColorConstancy(mode=DATA_TYPE, data_folder=DATA_FOLDER)
+    test_set = TemporalColorConstancy(mode=DATA_TYPE, split_folder=DATA_FOLDER)
     test_loader = DataLoader(test_set, batch_size=1, shuffle=False, num_workers=20)
     print('Test set size: {}'.format(len(test_set)))
 

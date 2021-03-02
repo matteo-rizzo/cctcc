@@ -1,3 +1,5 @@
+from typing import List, Dict
+
 import numpy as np
 
 
@@ -16,16 +18,16 @@ class Evaluator:
     def reset_errors(self):
         self.__errors = []
 
-    def get_errors(self) -> list:
+    def get_errors(self) -> List:
         return self.__errors
 
-    def get_metrics(self) -> dict:
+    def get_metrics(self) -> Dict:
         return self.__metrics
 
-    def get_best_metrics(self) -> dict:
+    def get_best_metrics(self) -> Dict:
         return self.__best_metrics
 
-    def compute_metrics(self) -> dict:
+    def compute_metrics(self) -> Dict:
         self.__errors = sorted(self.__errors)
         self.__metrics = {
             "mean": np.mean(self.__errors),
@@ -37,7 +39,7 @@ class Evaluator:
         }
         return self.__metrics
 
-    def update_best_metrics(self) -> dict:
+    def update_best_metrics(self) -> Dict:
         self.__best_metrics["mean"] = self.__metrics["mean"]
         self.__best_metrics["median"] = self.__metrics["median"]
         self.__best_metrics["trimean"] = self.__metrics["trimean"]

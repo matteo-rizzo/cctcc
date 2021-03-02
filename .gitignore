@@ -141,3 +141,6 @@ dmypy.json
 /utils/
 /vis/corrections/
 /dataset/grayball/gifs/
+/dataset/grayball/large_variations/
+/test_results/
+/test/logs/

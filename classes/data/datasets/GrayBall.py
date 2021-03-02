@@ -1,5 +1,6 @@
 import glob
 import os
+from typing import List
 
 from classes.data.datasets.BaseTemporalDataset import BaseTemporalDataset
 
@@ -21,5 +22,5 @@ class GrayBall(BaseTemporalDataset):
 
         self._paths_to_items = sorted(self._paths_to_items)
 
-    def get_scenes(self) -> list:
+    def get_scenes(self) -> List:
         return self.__scenes

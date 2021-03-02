@@ -5,7 +5,7 @@ import torch.utils.data
 from torch.utils.data import DataLoader
 
 from auxiliary.settings import DEVICE
-from auxiliary.utils import log_experiment, print_metrics, log_metrics, log_time
+from auxiliary.utils import log_experiment, print_val_metrics, log_metrics, log_time
 from classes.data.datasets.TemporalColorConstancy import TemporalColorConstancy
 from classes.modules.multiframe.ctccnet.ModelCTCCNet import ModelCTCCNet
 from classes.modules.multiframe.ctccnetc4.ModelCTCCNetC4 import ModelCTCCNetC4
@@ -38,10 +38,10 @@ def main():
 
     print("\nLoading data from '{}':".format(DATA_FOLDER))
 
-    training_set = TemporalColorConstancy(mode="train", data_folder=DATA_FOLDER)
+    training_set = TemporalColorConstancy(mode="train", split_folder=DATA_FOLDER)
     train_loader = DataLoader(dataset=training_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=8)
 
-    test_set = TemporalColorConstancy(mode="test", data_folder=DATA_FOLDER)
+    test_set = TemporalColorConstancy(mode="test", split_folder=DATA_FOLDER)
     test_loader = DataLoader(dataset=test_set, batch_size=BATCH_SIZE, num_workers=8)
 
     training_set_size, test_set_size = len(training_set), len(test_set)
@@ -71,8 +71,6 @@ def main():
 
     for epoch in range(EPOCHS):
 
-        # --- Training ---
-
         model.train_mode()
         train_l1.reset()
         train_l2.reset()
@@ -80,15 +78,9 @@ def main():
         train_mal.reset()
         start = time.time()
 
-        for i, data in enumerate(train_loader):
-
+        for i, (sequence, mimic, label, file_name) in enumerate(train_loader):
             model.reset_gradient()
-
-            sequence, mimic, label, file_name = data
-            sequence = sequence.unsqueeze(1).to(DEVICE) if len(sequence.shape) == 4 else sequence.to(DEVICE)
-            mimic = mimic.to(DEVICE)
-            label = label.to(DEVICE)
-
+            sequence, mimic, label = sequence.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
             o1, o2, o3 = model.predict(sequence, mimic)
             l1, l2, l3, mal = model.compute_loss([o1, o2, o3], label)
             mal.backward()
@@ -107,14 +99,11 @@ def main():
         train_time = time.time() - start
         log_time(time=train_time, time_type="train", path_to_log=path_to_experiment_log)
 
-        # --- Validation ---
-
-        start = time.time()
-
         val_l1.reset()
         val_l2.reset()
         val_l3.reset()
         val_mal.reset()
+        start = time.time()
 
         if epoch % 5 == 0:
 
@@ -127,13 +116,8 @@ def main():
                 model.evaluation_mode()
                 evaluator.reset_errors()
 
-                for i, data in enumerate(test_loader):
-
-                    sequence, mimic, label, file_name = data
-                    sequence = sequence.unsqueeze(1).to(DEVICE) if len(sequence.shape) == 4 else sequence.to(DEVICE)
-                    mimic = mimic.to(DEVICE)
-                    label = label.to(DEVICE)
-
+                for i, (sequence, mimic, label, file_name) in enumerate(test_loader):
+                    sequence, mimic, label = sequence.to(DEVICE), mimic.to(DEVICE), label.to(DEVICE)
                     o1, o2, o3 = model.predict(sequence, mimic)
                     l1, l2, l3, mal = model.compute_loss([o1, o2, o3], label)
                     val_l1.update(l1.item())
@@ -167,7 +151,7 @@ def main():
             print(" Val L2 ....... : {:.4f}".format(val_l2.avg))
             print(" Val L3 ....... : {:.4f} (Best: {:.4f})".format(val_l3.avg, best_val_loss))
             print("....................................................................")
-            print_metrics(metrics, best_metrics)
+            print_val_metrics(metrics, best_metrics)
         print("********************************************************************\n")
 
         if 0 < val_l3.avg < best_val_loss:

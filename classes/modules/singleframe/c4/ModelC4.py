@@ -30,7 +30,7 @@ class ModelC4(BaseModel):
                                       a2: float = 0.33) -> torch.Tensor:
         return a1 * l1 + a2 * l2 + (1.0 - a1 - a2) * l3
 
-    def compute_loss(self, img: torch.Tensor, label: torch.Tensor) -> list:
+    def compute_loss(self, img: torch.Tensor, label: torch.Tensor) -> List:
         pred1, pred2, pred3 = self.predict(img, return_raw_predictions=True)
         l1 = Variable(self.get_angular_loss(pred1, label), requires_grad=True)
         l2 = Variable(self.get_angular_loss(torch.mul(pred1, pred2), label), requires_grad=True)

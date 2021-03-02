@@ -31,7 +31,7 @@ MODELS = {"ctccnet": ModelCTCCNet, "ctccnetc4": ModelCTCCNetC4}
 def main():
     log_data = {"file_names": [], "preds1": [], "preds2": [], "preds3": [], "errors": [], "ground_truths": []}
 
-    test_set = TemporalColorConstancy(mode="test", data_folder=DATA_FOLDER)
+    test_set = TemporalColorConstancy(mode="test", split_folder=DATA_FOLDER)
     test_loader = DataLoader(test_set, batch_size=1, shuffle=False, num_workers=20)
     print('Test set size: {}'.format(len(test_set)))
 

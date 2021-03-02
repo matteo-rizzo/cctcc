@@ -7,7 +7,7 @@ import pandas as pd
 
 USE_CV_METADATA = False
 USE_VAL_SET = False
-FOLD_NUM = 2
+FOLD_NUM = 0
 CV_METADATA_FILE = "3_folds_experiment.csv"
 
 USE_HIGH_PRECISION = False

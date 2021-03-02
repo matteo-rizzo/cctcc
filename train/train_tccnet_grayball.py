@@ -5,7 +5,7 @@ import torch.utils.data
 from torch.utils.data import DataLoader
 
 from auxiliary.settings import DEVICE
-from auxiliary.utils import print_metrics, log_metrics, log_time, log_experiment
+from auxiliary.utils import print_val_metrics, log_metrics, log_time, log_experiment
 from classes.data.datasets.GrayBall import GrayBall
 from classes.modules.multiframe.tccnet.ModelTCCNet import ModelTCCNet
 from classes.modules.multiframe.tccnetc4.ModelTCCNetC4 import ModelTCCNetC4
@@ -145,7 +145,7 @@ def main():
                 print(" Val Time ..... : {:.4f}".format(val_time))
                 print(" Val Loss ..... : {:.4f}".format(val_loss.avg))
                 print("....................................................................")
-                print_metrics(metrics, best_metrics)
+                print_val_metrics(metrics, best_metrics)
             print("********************************************************************\n")
 
             if 0 < val_loss.avg < best_val_loss:

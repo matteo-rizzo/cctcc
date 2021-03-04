@@ -15,8 +15,10 @@ ERROR_THRESHOLD = 5.0
 MASK_COORDS = [(225, 360), (335, 130)]
 PATH_TO_SCENES = "images"
 
-PATH_TO_HIGHLIGHTS = "high_variations"
+PATH_TO_HIGHLIGHTS = "large_variations"
 NUM_HIGHLIGHTS = 10
+FOLD_VARIATIONS = 0
+NUM_FOLDS = 0
 
 
 def mask_ground_truth(path_to_frame: str):
@@ -32,8 +34,8 @@ def process_sequence(frame_idx: int, scene_paths: List, path_to_seq: str, images
     for i in range(N):
         path_to_frame = scene_paths[frame_idx - i]
         print("\t * Preceding frame {}: {}".format(str(abs(i - N)), path_to_frame))
-        # masked_frame = mask_ground_truth(path_to_frame)
-        # masked_frame.save(os.path.join(path_to_seq, str(abs(i - N)) + ".jpg"))
+        masked_frame = mask_ground_truth(path_to_frame)
+        masked_frame.save(os.path.join(path_to_seq, str(abs(i - N)) + ".jpg"))
 
         if i < N - 1:
             current_gt = images_gt[path_to_frame]
@@ -46,13 +48,13 @@ def process_sequence(frame_idx: int, scene_paths: List, path_to_seq: str, images
 
     mean_error, std_error = np.mean(errors), np.std(errors)
 
-    # plt.plot(range(1, N + 1), errors)
-    # plt.title("AVG: {:.4f} - STD DEV: {:.4f}".format(mean_error, std_error))
-    # plt.xticks(range(1, N + 1))
-    # plt.xlabel("Frame Index")
-    # plt.ylabel("Angular Error w.r.t. Preceding Frame")
-    # plt.savefig(os.path.join(path_to_seq, "color_trend.png"), bbox_inches='tight', dpi=200)
-    # plt.clf()
+    plt.plot(range(1, N + 1), errors)
+    plt.title("AVG: {:.4f} - STD DEV: {:.4f}".format(mean_error, std_error))
+    plt.xticks(range(1, N + 1))
+    plt.xlabel("Frame Index")
+    plt.ylabel("Angular Error w.r.t. Preceding Frame")
+    plt.savefig(os.path.join(path_to_seq, "color_trend.png"), bbox_inches='tight', dpi=200)
+    plt.clf()
 
     return mean_error, std_error
 
@@ -75,11 +77,12 @@ def main():
     print("\tPreprocessing SFU Gray Ball for N = {}".format(N))
     print("\n--------------------------------------------------------------------------------------------\n")
 
-    num_sequences, variations = 0, []
-
+    num_sequences, variations, test_scenes = 0, [], []
     scenes = os.listdir(PATH_TO_SCENES)
-    fold_size = len(scenes) // 3
-    test_scenes = [scenes.pop(0 * fold_size) for _ in range(fold_size)]
+
+    if NUM_FOLDS != -1 and FOLD_VARIATIONS != -1:
+        fold_size = len(scenes) // NUM_FOLDS
+        test_scenes = [scenes.pop(FOLD_VARIATIONS * fold_size) for _ in range(fold_size)]
 
     for scene_name in os.listdir(PATH_TO_SCENES):
         if scene_name in test_scenes:
@@ -99,8 +102,8 @@ def main():
             mean_variation, std_variation = process_sequence(frame_idx, scene_paths, path_to_seq, images_gt)
             variations.append((scene_name, frame_idx, path_to_file.split(os.sep)[-1], mean_variation, std_variation))
 
-            # gt = np.array(images_gt[file])
-            # np.savetxt(os.path.join(path_to_seq, 'ground_truth.txt'), gt, delimiter=',')
+            gt = np.array(images_gt[path_to_file])
+            np.savetxt(os.path.join(path_to_seq, 'ground_truth.txt'), gt, delimiter=',')
 
             num_sequences += 1
 

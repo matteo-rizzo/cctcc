@@ -144,3 +144,4 @@ dmypy.json
 /dataset/grayball/large_variations/
 /test_results/
 /test/logs/
+/dataset/grayball/analysis/

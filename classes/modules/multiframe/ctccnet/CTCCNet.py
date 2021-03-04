@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import torch
 from torch import nn
 
@@ -29,7 +31,7 @@ class CTCCNet(nn.Module):
 
         return normalized_seq
 
-    def forward(self, a: torch.Tensor, b: torch.Tensor) -> tuple:
+    def forward(self, a: torch.Tensor, b: torch.Tensor) -> Tuple:
         """
         @param a: the sequences of frames of shape "bs x ts x nc x h x w"
         @param b: the mimic sequences of shape "bs x ts x nc x h x w"

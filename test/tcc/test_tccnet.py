@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 
 from auxiliary.settings import DEVICE
 from auxiliary.utils import print_test_metrics
-from classes.data.datasets.GrayBall import GrayBall
+from classes.data.datasets.TemporalColorConstancy import TemporalColorConstancy
 from classes.modules.multiframe.tccnet.ModelTCCNet import ModelTCCNet
 from classes.modules.multiframe.tccnetc4.ModelTCCNetC4 import ModelTCCNetC4
 from classes.training.Evaluator import Evaluator
@@ -21,9 +21,9 @@ Results on the TCC Split:
 """
 
 MODEL_TYPE = "tccnet"
-DATA_FOLDER = "gb5"
+DATA_FOLDER = "full_seq"
 SPLIT_FOLDER = "fold_0"
-PATH_TO_LOGS = os.path.join("test", "logs", "gb5")
+PATH_TO_LOGS = os.path.join("test", "tcc", "logs")
 
 MODELS = {"tccnet": ModelTCCNet, "tccnetc4": ModelTCCNetC4}
 
@@ -41,7 +41,7 @@ def main(opt):
     eval_data = {"file_names": [], "predictions": [], "ground_truths": []}
     inference_times = []
 
-    test_set = GrayBall(mode="test", num_folds=1)
+    test_set = TemporalColorConstancy(mode="test", split_folder=split_folder)
     test_loader = DataLoader(test_set, batch_size=1, shuffle=False, num_workers=20)
     print('Test set size: {}'.format(len(test_set)))
 
@@ -69,8 +69,8 @@ def main(opt):
             eval_data["predictions"].append(pred.cpu().numpy())
             eval_data["ground_truths"].append(label.cpu().numpy())
 
-            if i % 1 == 0:
-                print(" - Item {}: {}, AE: {:.4f}".format(i, file_name[0].split(os.sep)[-1], loss))
+            if i % 10 == 0:
+                print("Item {}: {}, AE: {:.4f}".format(i, file_name[0].split(os.sep)[-1], loss))
 
     print(" \n Average inference time: {:.4f} \n".format(np.mean(inference_times)))
 

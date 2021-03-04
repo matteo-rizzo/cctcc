@@ -5,24 +5,23 @@ import torch.utils.data
 from torch.utils.data import DataLoader
 
 from auxiliary.settings import DEVICE
-from auxiliary.utils import log_experiment, print_val_metrics, log_metrics, log_time
+from auxiliary.utils import print_val_metrics, log_metrics, log_time, log_experiment
 from classes.data.datasets.GrayBall import GrayBall
-from classes.modules.multiframe.ctccnet.ModelCTCCNet import ModelCTCCNet
-from classes.modules.multiframe.ctccnetc4.ModelCTCCNetC4 import ModelCTCCNetC4
+from classes.modules.multiframe.tccnet.ModelTCCNet import ModelTCCNet
+from classes.modules.multiframe.tccnetc4.ModelTCCNetC4 import ModelTCCNetC4
 from classes.training.Evaluator import Evaluator
 from classes.training.LossTracker import LossTracker
 
-MODEL_TYPE = "ctccnet"
+MODEL_TYPE = "tccnetc4"
 NUM_FOLDS = 3
-BATCH_SIZE = 16
 EPOCHS = 50
+BATCH_SIZE = 16
 LEARNING_RATE = 0.00003
-BASE_PATH_TO_PTH_SUBMODULE = os.path.join("trained_models", "gb5", "tccnet")
 
 RELOAD_CHECKPOINT = False
 PATH_TO_PTH_CHECKPOINT = os.path.join("trained_models", MODEL_TYPE, "model.pth")
 
-MODELS = {"ctccnet": ModelCTCCNet, "ctccnetc4": ModelCTCCNetC4}
+MODELS = {"tccnet": ModelTCCNet, "tccnetc4": ModelTCCNetC4}
 
 
 def main():
@@ -30,7 +29,7 @@ def main():
 
     for n in range(NUM_FOLDS):
 
-        path_to_log = os.path.join("logs", "grayball", MODEL_TYPE + "_fold" + str(n) + "_" + str(time.time()))
+        path_to_log = os.path.join("logs", "", MODEL_TYPE + "_fold" + str(n) + "_" + str(time.time()))
         os.makedirs(path_to_log)
 
         path_to_metrics_log = os.path.join(path_to_log, "metrics.csv")
@@ -59,11 +58,6 @@ def main():
         if RELOAD_CHECKPOINT:
             print('\n Reloading checkpoint - pretrained model stored at: {} \n'.format(PATH_TO_PTH_CHECKPOINT))
             model.load(PATH_TO_PTH_CHECKPOINT)
-        else:
-            if BASE_PATH_TO_PTH_SUBMODULE != '':
-                path_to_pth_submodule = os.path.join(BASE_PATH_TO_PTH_SUBMODULE, "fold_{}".format(n), "model.pth")
-                print('\n Loading pretrained submodules stored at: {} \n'.format(path_to_pth_submodule))
-                model.load_submodules(path_to_pth_submodule)
 
         model.print_network()
         model.log_network(path_to_log)
@@ -73,18 +67,14 @@ def main():
         print('\n Training starts... \n')
 
         best_val_loss, best_metrics = 100.0, evaluator.get_best_metrics()
-        train_l1, train_l2, train_l3, train_mal = LossTracker(), LossTracker(), LossTracker(), LossTracker()
-        val_l1, val_l2, val_l3, val_mal = LossTracker(), LossTracker(), LossTracker(), LossTracker()
+        train_loss, val_loss = LossTracker(), LossTracker()
 
         for epoch in range(EPOCHS):
 
             # --- Training ---
 
             model.train_mode()
-            train_l1.reset()
-            train_l2.reset()
-            train_l3.reset()
-            train_mal.reset()
+            train_loss.reset()
             start = time.time()
 
             for i, data in enumerate(train_loader):
@@ -96,20 +86,14 @@ def main():
                 mimic = mimic.to(DEVICE)
                 label = label.to(DEVICE)
 
-                o1, o2, o3 = model.predict(sequence, mimic)
-                l1, l2, l3, mal = model.compute_loss([o1, o2, o3], label)
-                mal.backward()
+                loss = model.compute_loss(sequence, label, mimic)
                 model.optimize()
 
-                train_l1.update(l1.item())
-                train_l2.update(l2.item())
-                train_l3.update(l3.item())
-                train_mal.update(mal.item())
+                train_loss.update(loss)
 
                 if i % 5 == 0:
-                    print("[ Epoch: {}/{} - Batch: {}/{} ] | "
-                          "[ Train L1: {:.4f} | Train L2: {:.4f} | Train L3: {:.4f} | Train MAL: {:.4f} ]"
-                          .format(epoch, EPOCHS, i, training_set_size, l1.item(), l2.item(), l3.item(), mal.item()))
+                    print("[ Epoch: {}/{} - Item: {}/{} ] | [ Train loss: {:.4f} ]"
+                          .format(epoch, EPOCHS, i, training_set_size, loss))
 
             train_time = time.time() - start
             log_time(time=train_time, time_type="train", path_to_log=path_to_experiment_log)
@@ -118,10 +102,7 @@ def main():
 
             start = time.time()
 
-            val_l1.reset()
-            val_l2.reset()
-            val_l3.reset()
-            val_mal.reset()
+            val_loss.reset()
 
             if epoch % 5 == 0:
 
@@ -141,18 +122,14 @@ def main():
                         mimic = mimic.to(DEVICE)
                         label = label.to(DEVICE)
 
-                        o1, o2, o3 = model.predict(sequence, mimic)
-                        l1, l2, l3, mal = model.compute_loss([o1, o2, o3], label)
-                        val_l1.update(l1.item())
-                        val_l2.update(l2.item())
-                        val_l3.update(l3.item())
-                        val_mal.update(mal.item())
-                        evaluator.add_error(l3.item())
+                        o = model.predict(sequence, mimic)
+                        loss = model.get_angular_loss(o, label).item()
+                        val_loss.update(loss)
+                        evaluator.add_error(loss)
 
                         if i % 5 == 0:
-                            print("[ Epoch: {}/{} - Batch: {}/{} ] | "
-                                  "[ Val L1: {:.4f} | Val L2: {:.4f} | Val L3: {:.4f} | Val MAL: {:.4f} ]"
-                                  .format(epoch, EPOCHS, i, test_set_size, l1.item(), l2.item(), l3.item(), mal.item()))
+                            print("[ Epoch: {}/{} - Item: {}/{}] | Val loss: {:.4f} ]"
+                                  .format(epoch, EPOCHS, i, test_set_size, loss))
 
                 print("\n--------------------------------------------------------------\n")
 
@@ -162,28 +139,22 @@ def main():
             metrics = evaluator.compute_metrics()
             print("\n********************************************************************")
             print(" Train Time ... : {:.4f}".format(train_time))
-            print(" Train MAL .... : {:.4f}".format(train_mal.avg))
-            print(" Train L1 ..... : {:.4f}".format(train_l1.avg))
-            print(" Train L2 ..... : {:.4f}".format(train_l2.avg))
-            print(" Train L3 ..... : {:.4f}".format(train_l3.avg))
+            print(" Train Loss ... : {:.4f}".format(train_loss.avg))
             if val_time > 0.1:
                 print("....................................................................")
                 print(" Val Time ..... : {:.4f}".format(val_time))
-                print(" Val MAL ...... : {:.4f}".format(val_mal.avg))
-                print(" Val L1 ....... : {:.4f}".format(val_l1.avg))
-                print(" Val L2 ....... : {:.4f}".format(val_l2.avg))
-                print(" Val L3 ....... : {:.4f} (Best: {:.4f})".format(val_l3.avg, best_val_loss))
+                print(" Val Loss ..... : {:.4f}".format(val_loss.avg))
                 print("....................................................................")
                 print_val_metrics(metrics, best_metrics)
             print("********************************************************************\n")
 
-            if 0 < val_l3.avg < best_val_loss:
-                best_val_loss = val_l3.avg
-                best_metrics = evaluator.update_best_metrics()
+            if 0 < val_loss.avg < best_val_loss:
+                best_val_loss = val_loss.avg
+                evaluator.update_best_metrics()
                 print("Saving new best model... \n")
                 model.save(os.path.join(path_to_log, "model.pth"))
 
-            log_metrics(train_mal.avg, val_mal.avg, metrics, best_metrics, path_to_metrics_log)
+            log_metrics(train_loss.avg, val_loss.avg, metrics, best_metrics, path_to_metrics_log)
 
 
 if __name__ == '__main__':

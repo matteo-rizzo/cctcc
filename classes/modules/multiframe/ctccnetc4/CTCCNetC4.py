@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import torch
 from torch import nn
 
@@ -29,13 +31,12 @@ class CTCCNetC4(nn.Module):
 
         return normalized_seq
 
-    def forward(self, a: torch.Tensor, b: torch.Tensor) -> tuple:
+    def forward(self, a: torch.Tensor, b: torch.Tensor) -> Tuple:
         """
         @param a: the sequences of frames of shape "bs x ts x nc x h x w"
         @param b: the mimic sequences of shape "bs x ts x nc x h x w"
         @return: the normalized illuminant predictions from each step in the C4 cascade
         """
-
         o1 = self.submodel1(a, b)
         corrected_seq1_a = self.__correct_sequence(a, o1)
         corrected_seq1_b = self.__correct_sequence(b, o1)

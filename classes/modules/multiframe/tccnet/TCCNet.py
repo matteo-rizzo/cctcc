@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import torch
 from torch import nn
 
@@ -37,7 +39,7 @@ class TCCNet(nn.Module):
             nn.Sigmoid()
         )
 
-    def __init_hidden(self, batch_size: int, h: int, w: int) -> tuple:
+    def __init_hidden(self, batch_size: int, h: int, w: int) -> Tuple:
         hidden_state = torch.zeros((batch_size, self.hidden_size, h, w)).to(self.device)
         cell_state = torch.zeros((batch_size, self.hidden_size, h, w)).to(self.device)
         return hidden_state, cell_state

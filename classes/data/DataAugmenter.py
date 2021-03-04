@@ -1,5 +1,6 @@
 import math
 import random
+from typing import Tuple
 
 import cv2
 import numpy as np
@@ -9,7 +10,7 @@ from auxiliary.utils import rgb_to_bgr
 
 class DataAugmenter:
 
-    def __init__(self, input_size: tuple = (512, 512)):
+    def __init__(self, input_size: Tuple = (512, 512)):
         self.__input_size = input_size
         self.__angle = 15
         self.__scale = [0.8, 1.0]
@@ -61,7 +62,7 @@ class DataAugmenter:
         return cv2.warpAffine(image, affine_mat, (new_w, new_h), flags=cv2.INTER_LINEAR)
 
     @staticmethod
-    def __largest_rotated_rect(w: float, h: float, angle: float) -> tuple:
+    def __largest_rotated_rect(w: float, h: float, angle: float) -> Tuple:
         """
         Given a rectangle of size w x h that has been rotated by 'angle' (in radians), computes the width and height of
         the largest possible axis-aligned rectangle within the rotated rectangle.
@@ -168,7 +169,7 @@ class DataAugmenter:
             color_bias = self.get_random_color_bias()
         return img * np.array([[[color_bias[0][0], color_bias[1][1], color_bias[2][2]]]], dtype=np.float32)
 
-    def augment_sequence(self, images: np.ndarray, illuminant: np.ndarray) -> tuple:
+    def augment_sequence(self, images: np.ndarray, illuminant: np.ndarray) -> Tuple:
         color_bias = self.get_random_color_bias()
         scale = self.__get_random_scale(images[0])
         angle = self.__get_random_angle()

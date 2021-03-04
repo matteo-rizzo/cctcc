@@ -1,4 +1,7 @@
+from typing import List, Tuple
+
 import torch
+from torch import Tensor
 
 from classes.modules.common.BaseModel import BaseModel
 from classes.modules.multiframe.ctccnetc4.CTCCNetC4 import CTCCNetC4
@@ -26,7 +29,7 @@ class ModelCTCCNetC4(BaseModel):
                                       a2: float = 0.33) -> torch.Tensor:
         return a1 * l1 + a2 * l2 + (1.0 - a1 - a2) * l3
 
-    def compute_loss(self, o: list, y: torch.Tensor) -> tuple:
+    def compute_loss(self, o: List, y: torch.Tensor) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
         l1 = self.get_angular_loss(o[0], y)
         l2 = self.get_angular_loss(torch.mul(o[0], o[1]), y)
         l3 = self.get_angular_loss(torch.mul(torch.mul(o[0], o[1]), o[2]), y)

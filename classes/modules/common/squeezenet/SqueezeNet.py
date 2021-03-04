@@ -76,7 +76,7 @@ class SqueezeNet(nn.Module):
                 if m.bias is not None:
                     init.constant_(m.bias, 0)
 
-    def forward(self, x: torch):
+    def forward(self, x: torch) -> torch.Tensor:
         x = self.features(x)
         x = self.classifier(x)
         return x.view(x.size(0), self.num_classes)

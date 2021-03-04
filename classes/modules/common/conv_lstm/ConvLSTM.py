@@ -1,3 +1,5 @@
+from typing import Tuple, List
+
 import torch
 import torch.nn as nn
 
@@ -11,14 +13,13 @@ A multi-layer convolutional LSTM module based on: https://arxiv.org/abs/1506.042
 
 class ConvLSTM(nn.Module):
 
-    def __init__(self, input_channels, hidden_channels, kernel_size, step=1, effective_steps=(1,)):
-        """
-        @param input_channels: the first input feature map
-        @param hidden_channels: a list of succeeding lstm layers
-        @param kernel_size:
-        @param step:
-        @param effective_steps:
-        """
+    def __init__(self,
+                 input_channels: int,
+                 hidden_channels: List,
+                 kernel_size: int,
+                 step: int = 1,
+                 effective_steps: Tuple = (1,)):
+
         super().__init__()
 
         self.input_channels = [input_channels] + hidden_channels
@@ -35,7 +36,7 @@ class ConvLSTM(nn.Module):
             setattr(self, name, cell)
             self._all_layers.append(cell)
 
-    def forward(self, inputs: torch.Tensor) -> tuple:
+    def forward(self, inputs: torch.Tensor) -> Tuple:
         internal_state, outputs = [], []
         x, new_c = None, None
         for step in range(self.step):

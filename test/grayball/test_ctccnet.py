@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 
 from auxiliary.settings import DEVICE
 from auxiliary.utils import print_test_metrics
-from classes.data.datasets.TemporalColorConstancy import TemporalColorConstancy
+from classes.data.datasets.GrayBall import GrayBall
 from classes.modules.multiframe.ctccnet.ModelCTCCNet import ModelCTCCNet
 from classes.modules.multiframe.ctccnetc4.ModelCTCCNetC4 import ModelCTCCNetC4
 from classes.training.Evaluator import Evaluator
@@ -22,11 +22,11 @@ Results on the TCC Split:
     * CTCCNetC4 : mean: 1.6971, med: 0.9229, tri: 1.1347, bst: 0.2197, wst: 4.3621, pct: 6.0535
 """
 
-MODEL_TYPE = "ctccnet"
-DATA_FOLDER = "full_seq"
-SPLIT_FOLDER = "tcc_split"
+MODEL_TYPE = "ctccnetc4"
+DATA_FOLDER = "gb5"
+SPLIT_FOLDER = "fold_0"
+PATH_TO_LOGS = os.path.join("test", "grayball", "logs")
 PLOT_LOSSES = False
-PATH_TO_LOGS = os.path.join("test", "logs", "tcc")
 
 MODELS = {"ctccnet": ModelCTCCNet, "ctccnetc4": ModelCTCCNetC4}
 
@@ -37,7 +37,7 @@ def main(opt):
     split_folder = opt.split_folder
     plot_losses = opt.plot_losses
 
-    path_to_pth = os.path.join("trained_models", data_folder, model_type, "model.pth")
+    path_to_pth = os.path.join("trained_models", data_folder, model_type, split_folder, "model.pth")
     path_to_log = os.path.join(PATH_TO_LOGS, "{}_{}_{}_{}".format(model_type, data_folder, split_folder, time()))
     os.makedirs(path_to_log)
 
@@ -45,7 +45,7 @@ def main(opt):
     eval_data = {"file_names": [], "predictions": [], "ground_truths": []}
     inference_times = []
 
-    test_set = TemporalColorConstancy(mode="test", split_folder=split_folder)
+    test_set = GrayBall(mode="test", num_folds=1)
     test_loader = DataLoader(test_set, batch_size=1, shuffle=False, num_workers=20)
     print('Test set size: {}'.format(len(test_set)))
 
@@ -79,7 +79,7 @@ def main(opt):
             eval_data["predictions"].append(p3.cpu().numpy())
             eval_data["ground_truths"].append(label.cpu().numpy())
 
-            if i % 10 == 0:
+            if i % 1 == 0:
                 print("Item {}: {} - [ L1: {:.4f} | L2: {:.4f} | L3: {:.4f} ]"
                       .format(i, file_name[0].split(os.sep)[-1], l1, l2, l3))
 

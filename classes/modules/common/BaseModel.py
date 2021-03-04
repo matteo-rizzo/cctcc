@@ -1,6 +1,6 @@
 import math
 import os
-from typing import Union
+from typing import Union, Tuple, List
 
 import torch
 from torch.nn.functional import normalize
@@ -15,10 +15,10 @@ class BaseModel:
         self._network = None
         self.__optimizer = None
 
-    def predict(self, image: torch.Tensor) -> Union[torch.Tensor, tuple]:
+    def predict(self, image: torch.Tensor) -> Union[torch.Tensor, Tuple]:
         pass
 
-    def compute_loss(self, img: torch.Tensor, label: torch.Tensor) -> Union[list, float]:
+    def compute_loss(self, img: torch.Tensor, label: torch.Tensor) -> Union[List, float]:
         pass
 
     def print_network(self):

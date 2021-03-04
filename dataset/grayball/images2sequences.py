@@ -3,6 +3,7 @@ import math
 import os
 import shutil
 import time
+from typing import List, Dict
 
 import numpy as np
 import pandas as pd
@@ -26,7 +27,7 @@ def mask_ground_truth(path_to_frame: str):
     return Image.blend(img, mask, 1)
 
 
-def process_sequence(frame_idx: int, scene_paths: list, path_to_seq: str, images_gt: dict):
+def process_sequence(frame_idx: int, scene_paths: List, path_to_seq: str, images_gt: Dict):
     errors = []
     for i in range(N):
         path_to_frame = scene_paths[frame_idx - i]
@@ -76,13 +77,13 @@ def main():
 
     num_sequences, variations = 0, []
 
-    # scenes = os.listdir(PATH_TO_SCENES)
-    # fold_size = len(scenes) // 3
-    # test_scenes = [scenes.pop(2 * fold_size) for _ in range(fold_size)]
+    scenes = os.listdir(PATH_TO_SCENES)
+    fold_size = len(scenes) // 3
+    test_scenes = [scenes.pop(0 * fold_size) for _ in range(fold_size)]
 
     for scene_name in os.listdir(PATH_TO_SCENES):
-        # if scene_name in test_scenes:
-        #     continue
+        if scene_name in test_scenes:
+            continue
 
         print("\n *** Processing scene {} ***".format(scene_name))
         scene_paths = sorted(glob.glob(os.path.join(PATH_TO_SCENES, scene_name, "*.jpg")))
@@ -134,7 +135,7 @@ def main():
         path_to_dest = os.path.join(path_to_save, "top_std_dev", s, str(f))
         shutil.copytree(path_to_src, path_to_dest)
 
-    s, f, fn, mv, sdv = zip(*top_avg_seqs)
+    s, f, fn, mv, sdv = zip(*top_std_dev_seqs)
     path_to_csv = os.path.join(path_to_save, "top_std_dev.csv")
     pd.DataFrame({"scene": s, "frame": f, "file_name": fn, "mean_var": mv, "std_dev_var": sdv}).to_csv(path_to_csv)
 

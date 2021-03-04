@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import numpy as np
 import torch
 import torch.utils.data as data
@@ -15,7 +17,7 @@ class BaseTemporalDataset(data.Dataset):
         self._data_dir, self._label_dir = "ndata_seq", "nlabel"
         self._paths_to_items = []
 
-    def __getitem__(self, index: int) -> tuple:
+    def __getitem__(self, index: int) -> Tuple:
         path_to_sequence = self._paths_to_items[index]
         label_path = path_to_sequence.replace(self._data_dir, self._label_dir)
 

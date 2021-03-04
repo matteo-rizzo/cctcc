@@ -56,7 +56,7 @@ def main():
     print("\n=================================================\n")
 
 
-def save_sequence(files_seq: list, illuminant: list, filename: str):
+def save_sequence(files_seq: List, illuminant: List, filename: str):
     if USE_HIGH_PRECISION:
         images = [np.array(cv2.imread(file, -1), dtype='float32') for file in files_seq]
     else:
@@ -66,7 +66,7 @@ def save_sequence(files_seq: list, illuminant: list, filename: str):
     np.save(os.path.join(PATH_TO_NUMPY_LABEL, filename), illuminant)
 
 
-def convert_data(file_names: list, set_type: str):
+def convert_data(file_names: List, set_type: str):
     """
     Fetches the raw dataset items from the dataset and convert them into Numpy binary files
     @param file_names: the list of names of files to be processed

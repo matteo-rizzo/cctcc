@@ -28,7 +28,7 @@ def log_time(time: float, time_type: str, path_to_log: str):
     open(path_to_log, 'w+').write(json.dumps(data, indent=2))
 
 
-def log_metrics(train_loss: float, val_loss: float, current_metrics: dict, best_metrics: dict, path_to_log: str):
+def log_metrics(train_loss: float, val_loss: float, current_metrics: Dict, best_metrics: Dict, path_to_log: str):
     log_data = pd.DataFrame({
         "train_loss": [train_loss],
         "val_loss": [val_loss],
@@ -46,7 +46,7 @@ def log_metrics(train_loss: float, val_loss: float, current_metrics: dict, best_
                     index=False)
 
 
-def print_val_metrics(current_metrics: dict, best_metrics: dict):
+def print_val_metrics(current_metrics: Dict, best_metrics: Dict):
     print(" Mean ......... : {:.4f} (Best: {:.4f})".format(current_metrics["mean"], best_metrics["mean"]))
     print(" Median ....... : {:.4f} (Best: {:.4f})".format(current_metrics["median"], best_metrics["median"]))
     print(" Trimean ...... : {:.4f} (Best: {:.4f})".format(current_metrics["trimean"], best_metrics["trimean"]))

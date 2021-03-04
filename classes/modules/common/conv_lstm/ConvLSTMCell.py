@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
@@ -7,7 +9,7 @@ from auxiliary.settings import DEVICE
 
 class ConvLSTMCell(nn.Module):
 
-    def __init__(self, input_channels, hidden_channels, kernel_size):
+    def __init__(self, input_channels: int, hidden_channels: int, kernel_size: int):
         super().__init__()
 
         self.device = DEVICE
@@ -32,7 +34,7 @@ class ConvLSTMCell(nn.Module):
         self.Wcf = None
         self.Wco = None
 
-    def forward(self, x: torch.Tensor, h: torch.Tensor, c: torch.Tensor) -> tuple:
+    def forward(self, x: torch.Tensor, h: torch.Tensor, c: torch.Tensor) -> Tuple:
         ci = torch.sigmoid(self.Wxi(x) + self.Whi(h) + c * self.Wci)
         cf = torch.sigmoid(self.Wxf(x) + self.Whf(h) + c * self.Wcf)
         cc = cf * c + ci * torch.tanh(self.Wxc(x) + self.Whc(h))
@@ -40,7 +42,7 @@ class ConvLSTMCell(nn.Module):
         ch = co * torch.tanh(cc)
         return ch, cc
 
-    def init_hidden(self, hidden: int, shape: tuple):
+    def init_hidden(self, hidden: int, shape: Tuple):
         if self.Wci is None:
             self.Wci = Variable(torch.zeros(1, hidden, shape[0], shape[1])).to(self.device)
             self.Wcf = Variable(torch.zeros(1, hidden, shape[0], shape[1])).to(self.device)

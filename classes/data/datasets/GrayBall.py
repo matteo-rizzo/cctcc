@@ -1,13 +1,13 @@
 import glob
 import os
-from typing import List
+from typing import List, Tuple
 
 from classes.data.datasets.BaseTemporalDataset import BaseTemporalDataset
 
 
 class GrayBall(BaseTemporalDataset):
 
-    def __init__(self, mode: str = "train", input_size: tuple = (224, 224), fold: int = 0, num_folds: int = 3):
+    def __init__(self, mode: str = "train", input_size: Tuple = (224, 224), fold: int = 0, num_folds: int = 3):
         super().__init__(mode, input_size)
         path_to_dataset = os.path.join("dataset", "grayball", "preprocessed")
         training_scenes = sorted(os.listdir(path_to_dataset))

@@ -22,7 +22,7 @@ Results on the TCC Split:
 
 MODEL_TYPE = "tccnet"
 DATA_FOLDER = "full_seq"
-SPLIT_FOLDER = "fold_0"
+SPLIT_FOLDER = "tcc_split"
 PATH_TO_LOGS = os.path.join("test", "tcc", "logs")
 
 MODELS = {"tccnet": ModelTCCNet, "tccnetc4": ModelTCCNetC4}

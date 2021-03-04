@@ -1,5 +1,6 @@
 import glob
 import os
+from typing import List
 
 import cv2
 import numpy as np
@@ -12,7 +13,7 @@ CV_METADATA_FILE = "3_folds_experiment.csv"
 
 USE_HIGH_PRECISION = False
 DOWN_SAMPLE = False
-TRUNCATE = True
+TRUNCATE = False
 SUBSEQUENCE_LEN = 2
 
 BASE_PATH_TO_DATA = os.path.join("preprocessed", "fold_" + str(FOLD_NUM) if USE_CV_METADATA else "tcc_split")

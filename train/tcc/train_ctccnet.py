@@ -12,12 +12,13 @@ from classes.modules.multiframe.ctccnetc4.ModelCTCCNetC4 import ModelCTCCNetC4
 from classes.training.Evaluator import Evaluator
 from classes.training.LossTracker import LossTracker
 
-MODEL_TYPE = "ctccnetc4"
+MODEL_TYPE = "ctccnet"
 DATA_FOLDER = "tcc_split"
 BATCH_SIZE = 1
 EPOCHS = 2000
 LEARNING_RATE = 0.00003
-PATH_TO_PTH_SUBMODULE = os.path.join("trained_models", "full_seq", "tccnetc4", DATA_FOLDER, "model.pth")
+PATH_TO_PTH_SUBMODULE = os.path.join("trained_models", "full_seq", "tccnet", DATA_FOLDER, "model.pth")
+PATH_TO_LOGS = os.path.join("training", "tcc", "logs")
 
 RELOAD_CHECKPOINT = False
 PATH_TO_PTH_CHECKPOINT = os.path.join("trained_models", "{}_{}".format(MODEL_TYPE, DATA_FOLDER), "model.pth")
@@ -28,7 +29,7 @@ MODELS = {"ctccnet": ModelCTCCNet, "ctccnetc4": ModelCTCCNetC4}
 def main():
     evaluator = Evaluator()
 
-    path_to_log = os.path.join("logs", "", MODEL_TYPE + "_" + DATA_FOLDER + "_" + str(time.time()))
+    path_to_log = os.path.join(PATH_TO_LOGS, "{}_{}_{}".format(MODEL_TYPE, DATA_FOLDER, str(time.time())))
     os.makedirs(path_to_log)
 
     path_to_metrics_log = os.path.join(path_to_log, "metrics.csv")

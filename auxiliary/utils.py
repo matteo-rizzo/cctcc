@@ -62,7 +62,7 @@ def print_test_metrics(metrics: Union[Dict, Tuple]):
         print(" Trimean ......... : {:.4f}".format(metrics["trimean"]))
         print(" Best 25% ........ : {:.4f}".format(metrics["bst25"]))
         print(" Worst 25% ....... : {:.4f}".format(metrics["wst25"]))
-        print(" Percentile 95 ... : {:.4f} \n".format(metrics["wst5"]))
+        print(" Worst 5% ........ : {:.4f} \n".format(metrics["wst5"]))
     else:
         metrics1, metrics2, metrics3 = metrics
         print("\n Mean ............ : [ s1: {:.4f} | s2: {:.4f} | s3: {:.4f} ]"
@@ -75,7 +75,7 @@ def print_test_metrics(metrics: Union[Dict, Tuple]):
               .format(metrics1["bst25"], metrics2["bst25"], metrics3["bst25"]))
         print(" Worst 25% ....... : [ s1: {:.4f} | s2: {:.4f} | s3: {:.4f} ]"
               .format(metrics1["wst25"], metrics2["wst25"], metrics3["wst25"]))
-        print(" Percentile 95 ... : [ s1: {:.4f} | s2: {:.4f} | s3: {:.4f} ] \n"
+        print(" Worst 5% ........ : [ s1: {:.4f} | s2: {:.4f} | s3: {:.4f} ] \n"
               .format(metrics1["wst5"], metrics2["wst5"], metrics3["wst5"]))
 
 

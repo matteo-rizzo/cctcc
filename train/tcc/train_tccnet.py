@@ -17,6 +17,7 @@ DATA_FOLDER = "tcc_split"
 EPOCHS = 2000
 BATCH_SIZE = 1
 LEARNING_RATE = 0.00003
+PATH_TO_LOGS = os.path.join("training", "tcc", "logs")
 
 RELOAD_CHECKPOINT = False
 PATH_TO_PTH_CHECKPOINT = os.path.join("trained_models", "{}_{}".format(MODEL_TYPE, DATA_FOLDER), "model.pth")
@@ -27,7 +28,7 @@ MODELS = {"tccnet": ModelTCCNet, "tccnetc4": ModelTCCNetC4}
 def main():
     evaluator = Evaluator()
 
-    path_to_log = os.path.join("logs", "", MODEL_TYPE + "_" + DATA_FOLDER + "_" + str(time.time()))
+    path_to_log = os.path.join(PATH_TO_LOGS, "{}_{}_{}".format(MODEL_TYPE, DATA_FOLDER, str(time.time())))
     os.makedirs(path_to_log)
 
     path_to_metrics_log = os.path.join(path_to_log, "metrics.csv")

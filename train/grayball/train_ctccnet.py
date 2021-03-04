@@ -18,6 +18,7 @@ BATCH_SIZE = 16
 EPOCHS = 50
 LEARNING_RATE = 0.00003
 BASE_PATH_TO_PTH_SUBMODULE = os.path.join("trained_models", "gb5", "tccnet")
+PATH_TO_LOGS = os.path.join("training", "grayball", "logs")
 
 RELOAD_CHECKPOINT = False
 PATH_TO_PTH_CHECKPOINT = os.path.join("trained_models", MODEL_TYPE, "model.pth")
@@ -30,7 +31,7 @@ def main():
 
     for n in range(NUM_FOLDS):
 
-        path_to_log = os.path.join("logs", "", MODEL_TYPE + "_fold" + str(n) + "_" + str(time.time()))
+        path_to_log = os.path.join(PATH_TO_LOGS, "{}_fold_{}_{}".format(MODEL_TYPE, n, time.time()))
         os.makedirs(path_to_log)
 
         path_to_metrics_log = os.path.join(path_to_log, "metrics.csv")

@@ -145,3 +145,4 @@ dmypy.json
 /test_results/
 /test/logs/
 /dataset/grayball/analysis/
+/test/tcc/logs/

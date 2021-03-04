@@ -1,11 +1,11 @@
 from typing import Tuple
 
 import torch
-from classes.modules.singleframe.fc4.FC4 import FC4
 from torch import nn
 
 from auxiliary.settings import DEVICE
 from classes.modules.common.squeezenet.SqueezeNetLoader import SqueezeNetLoader
+from classes.modules.multiframe.tccnetc4.submodules.FC4 import FC4
 
 
 class C4(torch.nn.Module):

@@ -15,14 +15,7 @@ from classes.modules.multiframe.ctccnet.ModelCTCCNet import ModelCTCCNet
 from classes.modules.multiframe.ctccnetc4.ModelCTCCNetC4 import ModelCTCCNetC4
 from classes.training.Evaluator import Evaluator
 
-"""
-Results on the TCC Split:
-    * TCCNet    : mean: 1.9944, med: 1.2079, tri: 1.4600, bst: 0.3000, wst: 4.8426, pct: 6.3391
-    * CTCCNet   : mean: 1.9505, med: 1.2161, tri: 1.4220, bst: 0.2529, wst: 4.7849, pct: 6.1011
-    * CTCCNetC4 : mean: 1.6971, med: 0.9229, tri: 1.1347, bst: 0.2197, wst: 4.3621, pct: 6.0535
-"""
-
-MODEL_TYPE = "ctccnetc4"
+MODEL_TYPE = "ctccnet"
 DATA_FOLDER = "gb5"
 SPLIT_FOLDER = "fold_0"
 PATH_TO_LOGS = os.path.join("test", "grayball", "logs")

@@ -14,12 +14,6 @@ from classes.modules.multiframe.tccnet.ModelTCCNet import ModelTCCNet
 from classes.modules.multiframe.tccnetc4.ModelTCCNetC4 import ModelTCCNetC4
 from classes.training.Evaluator import Evaluator
 
-"""
-Results on the TCC Split:
-    * TCCNet   : mean: 1.9944, med: 1.2079, tri: 1.4600, bst: 0.3000, wst: 4.8426, pct: 6.3391
-    * TCCNetC4 : mean: 1.7171, med: 1.0847, tri: 1.2002, bst: 0.1982, wst: 4.3331, pct: 6.0090
-"""
-
 MODEL_TYPE = "tccnet"
 DATA_FOLDER = "gb5"
 SPLIT_FOLDER = "fold_0"

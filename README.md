@@ -1,6 +1,6 @@
-# Improved DL Methods for TCC
+# Cascading Convolutional Color Constancy
 
-This repository contains the code related to the paper “Improved Deep-learning Methods for Temporal Color Constancy”.
+This repository contains the code related to the paper “Cascading Convolutional Color Constancy”.
 
 ## Installation
 
@@ -28,17 +28,17 @@ respect to the root folder.
 The script for preprocessing can be run with `python3 img2npy.py` from within the `dataset/tcc/` folder.
 
 The  `dataset/tcc/img2npy.py` file contains the following global variables that can be edited to configured the
-preprocessing of the data:
+preprocessing of the data (note that all paths are relative to `dataset/tcc`).
 
 ```python
 # Whether or not to use the CV metadata file for generating the preprocessed files
 USE_CV_METADATA = False
 
-# Whether or not the CV metadada contain a validation set
+# Whether or not the CV metadata contains a validation set
 USE_VAL_SET = False
 
 # The id of the CV split to be generated (i.e, the corresponding index in the CSV with the metadata) 
-FOLD_NUM = 2
+FOLD_NUM = 0
 
 # The name of the CSV file containing the metadata for the CV
 CV_METADATA_FILE = "3_folds_experiment.csv"
@@ -49,8 +49,11 @@ USE_HIGH_PRECISION = False
 # Whether or not to truncate the sequences keeping only the last SUBSEQUENCE_LEN frames
 TRUNCATE = False
 
-# The number of frames to be kept in the truncation process
+# The number of frames to be kept in the truncation process, adjacent to the shot frame (e.g., 2 means shot and preceding)
 SUBSEQUENCE_LEN = 2
+
+# Whether or not to down sample the sequences taking the first, median and shot frame only (note that this operation follows the truncation in the preprocessing pipeline)
+DOWN_SAMPLE = False
 
 # Base path to the folder containing the preprocessed data
 BASE_PATH_TO_DATA = os.path.join("preprocessed", "fold_" + str(FOLD_NUM) if USE_CV_METADATA else "tcc_split")
@@ -78,16 +81,18 @@ GROUND_TRUTH_FILE = "groundtruth.txt"
 
 Pretrained models in PTH format can be downloaded
 from [here](https://ubcca-my.sharepoint.com/:f:/r/personal/marizzo_student_ubc_ca/Documents/Public/Models%20-%20Improved%20Deep-learning%20Methods%20for%20Temporal%20Color%20Constancy%20(IJCAI21)?csf=1&web=1&e=tczHtP)
-. To reproduce the results reported in the paper, the path to the pretrained models must be specified in the
-corresponding testing script.
+. The pretrained models are organized based on the type of sequences they have been trained on, that is full
+sequences (`full_seq`) sequences of 3 frames (`3f_seq`) and sequences of 2 frames (`2f_seq`). All models come with a
+dump of the network architecture and of the training metrics. To reproduce the results reported in the paper, the path
+to the pretrained models must be specified in the corresponding testing script.
 
 ## Structure of the project
 
 The code in this project is mainly structured following object-oriented programming. The core code for the project is
-stored under `classes` . The implemented neural network architectures are located at `classes/modules` and organized
-in `multiframe` (i.e., [RCCNet and TCCNet](https://github.com/yanlinqian/Temporal-Color-Constancy), TCCNet-C4, C-TCCNet,
-C-TCCNet-C4) and `singleframe` (i.e., [C4](https://github.com/yhlscut/C4) and [FC4](https://github.com/yuanming-hu/fc4))
-.
+stored under `classes` . The implemented neural network architectures are located at `classes/modules` and organized in
+the `multiframe` folder, including [TCCNet](https://github.com/yanlinqian/Temporal-Color-Constancy), TCCNet-C4, C-TCCNet
+and C-TCCNet-C4. The code for TCCNet-C4 also includes a reimplementation of its submodules (
+i.e., [C4](https://github.com/yhlscut/C4) and [FC4](https://github.com/yuanming-hu/fc4)).
 
 Each module at `classes/modules` features a **network** (i.e., a subclass of `nn.Module`) and a **model** (i.e., a
 subclass of the custom `classes/modules/common/BaseModel.py` handling the prediction step). Note that each
@@ -107,7 +112,7 @@ The `auxiliary/utils.py` file features two functions:
 
 ### Training
 
-**TCCNet** and **TCCNet-C4** can be trained with the `python3 train/train_tccnet.py` command. The file includes the
+**TCCNet** and **TCCNet-C4** can be trained with the `python3 train/tcc/train_tccnet.py` command. The file includes the
 following global variables that can be edited to configure the training:
 
 ```python
@@ -133,8 +138,8 @@ BATCH_SIZE = 1
 LEARNING_RATE = 0.00003
 ```
 
-**C-TCCNet** and **C-TCCNet-C4** can be trained with the `python3 train/train_ctccnet.py` command. The file includes the
-following global variables that can be edited to configure the training:
+**C-TCCNet** and **C-TCCNet-C4** can be trained with the `python3 train/tcc/train_ctccnet/.py` command. The file
+includes the following global variables that can be edited to configure the training:
 
 ```python
 # The model to be trained (i.e., either "ctccnet" or "ctccnetc4")
@@ -150,7 +155,7 @@ PATH_TO_PTH_SUBMODULE = os.path.join("trained_models", "tccnet", "model.pth")
 RELOAD_CHECKPOINT = False
 
 # The path to the PTH file to be used as checkpoint
-PATH_TO_PTH_CHECKPOINT = os.path.join("trained_models", "ctccnetc", "checkpoint", "model.pth")
+PATH_TO_PTH_CHECKPOINT = os.path.join("trained_models", "ctccnet", "checkpoint", "model.pth")
 
 # The number of iterations over data
 EPOCHS = 2000
@@ -165,7 +170,7 @@ LEARNING_RATE = 0.00003
 ### Testing
 
 **TCCNet** and **TCCNet-C4** can be tested to replicate the results reported in the paper with
-the `python3 test/test_tccnet.py` script and loading the desired pretrained model. The file includes the following
+the `python3 test/tcc/test_tccnet.py` script and loading the desired pretrained model. The file includes the following
 global variables that can be edited to configure the training:
 
 ```python
@@ -180,7 +185,7 @@ PATH_TO_PTH = os.path.join("trained_models", "tccnet", "model.pth")
 ```
 
 **C-TCCNet** and **C-TCCNet-C4** can be tested to replicate the results reported in the paper with
-the `python3 test/test_ctccnet.py` command and loading the desired pretrained model. The file includes the following
+the `python3 test/tcc/test_ctccnet.py` command and loading the desired pretrained model. The file includes the following
 global variables that can be edited to configure the training:
 
 ```python

@@ -1,7 +1,6 @@
 # Improved DL Methods for TCC
 
-This repository contains the code related to the paper “Improved Deep-learning Methods for Temporal Color Constancy”
-submitted to IJCAI2021.
+This repository contains the code related to the paper “Improved Deep-learning Methods for Temporal Color Constancy”.
 
 ## Installation
 

@@ -80,8 +80,11 @@ GROUND_TRUTH_FILE = "groundtruth.txt"
 ## Pretrained models
 
 Pretrained models in PTH format can be downloaded
-from [here](https://ubcca-my.sharepoint.com/:f:/r/personal/marizzo_student_ubc_ca/Documents/Public/Models%20-%20Improved%20Deep-learning%20Methods%20for%20Temporal%20Color%20Constancy%20(IJCAI21)?csf=1&web=1&e=tczHtP)
-. The pretrained models are organized based on the type of sequences they have been trained on, that is full
+from [here](https://ubcca-my.sharepoint.com/:u:/r/personal/marizzo_student_ubc_ca/Documents/Models/iccv21.zip?csf=1&web=1&e=Xdu3vf)
+. Please contact me if you have any trouble downloading the models and I will be happy to figure out a way to deliver
+them to you.
+
+The pretrained models are organized based on the type of sequences they have been trained on, that is full
 sequences (`full_seq`) sequences of 3 frames (`3f_seq`) and sequences of 2 frames (`2f_seq`). All models come with a
 dump of the network architecture and of the training metrics. To reproduce the results reported in the paper, the path
 to the pretrained models must be specified in the corresponding testing script.

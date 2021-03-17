@@ -4,7 +4,7 @@ import os
 from PIL import Image
 from tqdm import tqdm
 
-from viz.utils import linear_to_nonlinear
+from utils import linear_to_nonlinear
 
 NUM_EXAMPLES = 25
 

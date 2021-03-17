@@ -50,3 +50,9 @@ class Evaluator:
 
     def __g(self, f: float) -> float:
         return np.percentile(self.__errors, f * 100)
+
+    def get_bst_threshold(self) -> float:
+        return sorted(self.__errors)[:int(0.25 * len(self.__errors))][-1]
+
+    def get_wst_threshold(self) -> float:
+        return sorted(self.__errors)[int(0.75 * len(self.__errors)):][0]

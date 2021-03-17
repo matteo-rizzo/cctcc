@@ -1,7 +1,9 @@
 import argparse
+import glob
 import os
 from time import time, perf_counter
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch.utils.data
@@ -38,7 +40,7 @@ def main(opt):
     os.makedirs(path_to_log)
 
     evaluator = Evaluator()
-    eval_data = {"file_names": [], "predictions": [], "ground_truths": []}
+    eval_data = {"file_names": [], "preds": [], "ground_truths": []}
     inference_times = []
 
     test_set = TemporalColorConstancy(mode="test", split_folder=split_folder)
@@ -63,13 +65,12 @@ def main(opt):
             inference_times.append(toc - tic)
 
             loss = model.get_angular_loss(pred, label).item()
-
             evaluator.add_error(loss)
             eval_data["file_names"].append(file_name[0])
-            eval_data["predictions"].append(pred.cpu().numpy())
+            eval_data["preds"].append(pred.cpu().numpy())
             eval_data["ground_truths"].append(label.cpu().numpy())
 
-            if i % 10 == 0:
+            if i > 0 and i % 10 == 0:
                 print("Item {}: {}, AE: {:.4f}".format(i, file_name[0].split(os.sep)[-1], loss))
 
     print(" \n Average inference time: {:.4f} \n".format(np.mean(inference_times)))
@@ -80,6 +81,32 @@ def main(opt):
 
     pd.DataFrame({k: [v] for k, v in metrics.items()}).to_csv(os.path.join(path_to_log, "metrics.csv"), index=False)
     pd.DataFrame(eval_data).to_csv(os.path.join(path_to_log, "eval.csv"), index=False)
+
+    easy_seq_len, hard_seq_len, all_seq_len = [], [], []
+    bst_threshold, wst_threshold = evaluator.get_bst_threshold(), evaluator.get_wst_threshold()
+    for file_name, error in sorted(zip(eval_data["file_names"], eval_data["errors"]), key=lambda tup: tup[1]):
+        seq_id = file_name.split(os.sep)[-1].split(".")[0].split("test")[-1]
+        seq_len = len(glob.glob(os.path.join("dataset", "tcc", "raw", "test", seq_id, "[0-9]*.png")))
+        if error <= bst_threshold:
+            easy_seq_len.append(seq_len)
+        if error >= wst_threshold:
+            hard_seq_len.append(seq_len)
+        all_seq_len.append(seq_len)
+
+    print("\n [ Avg seq len bst25%: {:.2f} | Avg seq len wst25%: {:.2f} | Avg seq len overall: {:.2f}] \n"
+          .format(np.mean(easy_seq_len), np.mean(hard_seq_len), np.mean(all_seq_len)))
+
+    print("\t - Easy (bst25% - error <= {:.4f}) seq len (avg over {} inputs): {}"
+          .format(bst_threshold, len(easy_seq_len), easy_seq_len))
+    print("\t - Hard (wst25% - error >= {:.4f}) seq len (avg over {} inputs): {}"
+          .format(wst_threshold, len(hard_seq_len), hard_seq_len))
+
+    all_errors = sorted(evaluator.get_errors())
+    plt.plot(all_seq_len, color="blue", label="Seq len")
+    plt.plot(all_errors, color="red", label="Error")
+    plt.title("Model '{}' - Errors vs Seq Len".format(model_type))
+    plt.legend()
+    plt.savefig(os.path.join(path_to_log, "error_vs_seq_len.png"))
 
 
 if __name__ == '__main__':

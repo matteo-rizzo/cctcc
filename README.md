@@ -1,6 +1,4 @@
-# Cascading Convolutional Color Constancy
-
-This repository contains the code related to the paper “Cascading Convolutional Color Constancy”.
+# Cascading Convolutional Colour Constancy
 
 ## Installation
 

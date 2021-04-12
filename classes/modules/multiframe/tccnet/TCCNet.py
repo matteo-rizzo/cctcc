@@ -1,6 +1,7 @@
 from typing import Tuple
 
 import torch
+import torch.nn.functional as F
 from torch import nn
 
 from auxiliary.settings import DEVICE
@@ -75,4 +76,4 @@ class TCCNet(nn.Module):
         c = torch.cat((hidden_state_1, hidden_state_2), 1)
         c = self.fc(c)
 
-        return torch.nn.functional.normalize(c if len(c.shape) == 2 else torch.sum(torch.sum(c, 2), 2), dim=1)
+        return F.normalize(torch.sum(torch.sum(c, 2), 2), dim=1)

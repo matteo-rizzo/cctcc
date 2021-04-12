@@ -33,3 +33,7 @@ def get_device() -> torch.device:
 
 
 DEVICE = get_device()
+
+# --- Other settings ---
+
+NUM_STAGES = 2

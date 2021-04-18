@@ -17,15 +17,13 @@ class CTCCNet2(nn.Module):
             self.submodules.append(TCCNet())
 
     def __correct_sequence(self, seq: torch.Tensor, illuminants: torch.Tensor) -> torch.Tensor:
-        # Idea: correct each frame using its predicted illuminant
-        print(len(illuminants), illuminants[0].shape)
-        exit()
+        """ Correct each frame in the sequence using its predicted illuminant """
+
         # Linear to non-linear illuminant
-        illuminant = illuminants.pow(1.0 / 2.2).unsqueeze(2).unsqueeze(3).unsqueeze(1)
+        illuminants = illuminants.pow(1.0 / 2.2).squeeze(1).unsqueeze(2).unsqueeze(3).unsqueeze(0)
 
         # Correct the image
-        correction = (illuminant * torch.sqrt(torch.Tensor([3])).to(self.__device))
-        correction = correction.expand(seq.shape[0], seq.shape[1], -1, -1, -1)
+        correction = (illuminants * torch.sqrt(torch.Tensor([3])).to(self.__device))
         corrected_seq = torch.div(seq, correction + 1e-10)
 
         # Normalize the image

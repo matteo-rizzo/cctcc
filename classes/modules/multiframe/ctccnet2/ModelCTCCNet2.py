@@ -33,7 +33,7 @@ class ModelCTCCNet2(BaseModel):
 
     def get_loss(self, o: List, y: torch.Tensor) -> Tuple:
         stage_out, stages_loss = None, []
-        for stage in NUM_STAGES:
+        for stage in range(NUM_STAGES):
             stage_out = torch.mul(stage_out, o[stage]) if stage - 1 > 0 else o[stage]
             stages_loss.append(self.get_angular_loss(stage_out, y))
         mal = sum(stages_loss)

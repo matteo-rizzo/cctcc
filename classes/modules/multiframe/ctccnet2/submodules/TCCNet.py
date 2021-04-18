@@ -81,10 +81,13 @@ class TCCNet(nn.Module):
         preds_temp, preds_shot = [], []
         for t in range(time_steps):
             h_temp, c_temp = self.lstm_temp(e_temp[:, t, :], h_temp, c_temp)
-            preds_temp.append(F.normalize(torch.sum(torch.sum(self.fc_pred(h_temp), 2), 2), dim=1))
+            preds_temp.append(F.normalize(torch.sum(torch.sum(self.fc_pred(h_temp), 2), 2), dim=1).unsqueeze(0))
 
             h_shot, c_shot = self.lstm_shot(e_shot[:, t, :], h_shot, c_shot)
-            preds_shot.append(F.normalize(torch.sum(torch.sum(self.fc_pred(h_shot), 2), 2), dim=1))
+            preds_shot.append(F.normalize(torch.sum(torch.sum(self.fc_pred(h_shot), 2), 2), dim=1).unsqueeze(0))
+
+        preds_temp = torch.cat(preds_temp)
+        preds_shot = torch.cat(preds_shot)
 
         out = torch.cat((h_temp, h_shot), 1)
         out = self.fc(out)

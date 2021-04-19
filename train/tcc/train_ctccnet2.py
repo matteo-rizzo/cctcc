@@ -83,7 +83,6 @@ def main():
                 tl_log = " | ".join(["TL{} {:.4f}".format(i + 1, sl.item()) for i, sl in enumerate(stages_loss[:-1])])
                 print("[ Epoch: {}/{} - Batch: {}/{} ] | [ {} | Train MAL: {:.4f} ]"
                       .format(epoch, EPOCHS, i, training_set_size, tl_log, stages_loss[-1].item()))
-                break
 
         train_time = time.time() - start
         log_time(time=train_time, time_type="train", path_to_log=path_to_experiment_log)
@@ -119,7 +118,6 @@ def main():
                         vl_log = " | ".join(vl_log)
                         print("[ Epoch: {}/{} - Batch: {}/{} ] | [ {} | Val MAL: {:.4f} ]"
                               .format(epoch, EPOCHS, i, test_set_size, vl_log, stages_loss[-1].item()))
-                        break
 
             print("\n--------------------------------------------------------------\n")
 

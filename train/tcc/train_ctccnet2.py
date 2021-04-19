@@ -77,12 +77,13 @@ def main():
 
             for tl, sl in zip(train_losses[:-1], stages_loss):
                 tl.update(sl.item())
-            train_losses[-1] = mal
+            train_losses[-1].update(mal.item())
 
             if i % 5 == 0:
                 tl_log = " | ".join(["TL{} {:.4f}".format(i + 1, sl.item()) for i, sl in enumerate(stages_loss[:-1])])
                 print("[ Epoch: {}/{} - Batch: {}/{} ] | [ {} | Train MAL: {:.4f} ]"
                       .format(epoch, EPOCHS, i, training_set_size, tl_log, stages_loss[-1].item()))
+                break
 
         train_time = time.time() - start
         log_time(time=train_time, time_type="train", path_to_log=path_to_experiment_log)
@@ -109,14 +110,16 @@ def main():
 
                     for vl, sl in zip(val_losses[:-1], stages_loss):
                         vl.update(sl.item())
-                    val_losses[-1] = mal
-                    evaluator.add_error(val_losses[-2])
+                    val_losses[-1].update(mal.item())
+
+                    evaluator.add_error(stages_loss[-1].item())
 
                     if i % 5 == 0:
                         vl_log = ["VL{} {:.4f}".format(i + 1, sl.item()) for i, sl in enumerate(stages_loss[:-1])]
                         vl_log = " | ".join(vl_log)
                         print("[ Epoch: {}/{} - Batch: {}/{} ] | [ {} | Val MAL: {:.4f} ]"
                               .format(epoch, EPOCHS, i, test_set_size, vl_log, stages_loss[-1].item()))
+                        break
 
             print("\n--------------------------------------------------------------\n")
 

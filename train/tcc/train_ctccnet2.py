@@ -80,7 +80,7 @@ def main():
             train_losses[-1].update(mal.item())
 
             if i % 5 == 0:
-                tl_log = " | ".join(["TL{} {:.4f}".format(i + 1, sl.item()) for i, sl in enumerate(stages_loss[:-1])])
+                tl_log = " | ".join(["TL{} {:.4f}".format(i + 1, sl.item()) for i, sl in enumerate(stages_loss)])
                 print("[ Epoch: {}/{} - Batch: {}/{} ] | [ {} | Train MAL: {:.4f} ]"
                       .format(epoch, EPOCHS, i, training_set_size, tl_log, stages_loss[-1].item()))
 
@@ -114,7 +114,7 @@ def main():
                     evaluator.add_error(stages_loss[-1].item())
 
                     if i % 5 == 0:
-                        vl_log = ["VL{} {:.4f}".format(i + 1, sl.item()) for i, sl in enumerate(stages_loss[:-1])]
+                        vl_log = ["VL{} {:.4f}".format(i + 1, sl.item()) for i, sl in enumerate(stages_loss)]
                         vl_log = " | ".join(vl_log)
                         print("[ Epoch: {}/{} - Batch: {}/{} ] | [ {} | Val MAL: {:.4f} ]"
                               .format(epoch, EPOCHS, i, test_set_size, vl_log, stages_loss[-1].item()))

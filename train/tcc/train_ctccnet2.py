@@ -1,3 +1,4 @@
+import argparse
 import os
 import time
 
@@ -12,33 +13,34 @@ from classes.training.Evaluator import Evaluator
 from classes.training.LossTracker import LossTracker
 
 DATA_FOLDER = "tcc_split"
-BATCH_SIZE = 1
 EPOCHS = 2000
 LEARNING_RATE = 0.00003
-PATH_TO_LOGS = os.path.join("training", "tcc", "logs")
 
 RELOAD_CHECKPOINT = False
 PATH_TO_PTH_CHECKPOINT = os.path.join("trained_models", "ctccnet2_{}".format(DATA_FOLDER), "model.pth")
 
 
-def main():
+def main(opt):
+    data_folder = opt.data_folder
+    epochs = opt.epochs
+    learning_rate = opt.lr
     evaluator = Evaluator()
 
-    path_to_log = os.path.join(PATH_TO_LOGS, "ctccnet2_{}_{}".format(DATA_FOLDER, str(time.time())))
+    path_to_log = os.path.join("training", "tcc", "logs", "ctccnet2_{}_{}".format(data_folder, str(time.time())))
     os.makedirs(path_to_log)
 
     path_to_metrics_log = os.path.join(path_to_log, "metrics.csv")
     path_to_experiment_log = os.path.join(path_to_log, "experiment.json")
 
-    log_experiment("ctccnet2", DATA_FOLDER, LEARNING_RATE, path_to_experiment_log)
+    log_experiment("ctccnet2", data_folder, learning_rate, path_to_experiment_log)
 
-    print("\n Loading data from '{}':".format(DATA_FOLDER))
+    print("\n Loading data from '{}':".format(data_folder))
 
-    training_set = TemporalColorConstancy(mode="train", split_folder=DATA_FOLDER)
-    train_loader = DataLoader(dataset=training_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=8)
+    training_set = TemporalColorConstancy(mode="train", split_folder=data_folder)
+    train_loader = DataLoader(dataset=training_set, batch_size=1, shuffle=True, num_workers=8)
 
-    test_set = TemporalColorConstancy(mode="test", split_folder=DATA_FOLDER)
-    test_loader = DataLoader(dataset=test_set, batch_size=BATCH_SIZE, num_workers=8)
+    test_set = TemporalColorConstancy(mode="test", split_folder=data_folder)
+    test_loader = DataLoader(dataset=test_set, batch_size=1, num_workers=8)
 
     training_set_size, test_set_size = len(training_set), len(test_set)
     print("Training set size: ... {}".format(training_set_size))
@@ -53,7 +55,7 @@ def main():
     model.print_network()
     model.log_network(path_to_log)
 
-    model.set_optimizer(learning_rate=LEARNING_RATE)
+    model.set_optimizer(learning_rate)
 
     print('\n Training starts... \n')
 
@@ -63,7 +65,7 @@ def main():
         train_losses.append(LossTracker())
         val_losses.append(LossTracker())
 
-    for epoch in range(EPOCHS):
+    for epoch in range(epochs):
 
         model.train_mode()
         for tl in train_losses:
@@ -82,7 +84,7 @@ def main():
             if i % 5 == 0:
                 tl_log = " | ".join(["TL{} {:.4f}".format(i + 1, sl.item()) for i, sl in enumerate(stages_loss)])
                 print("[ Epoch: {}/{} - Batch: {}/{} ] | [ {} | Train MAL: {:.4f} ]"
-                      .format(epoch, EPOCHS, i, training_set_size, tl_log, stages_loss[-1].item()))
+                      .format(epoch + 1, epochs, i + 1, training_set_size, tl_log, stages_loss[-1].item()))
 
         train_time = time.time() - start
         log_time(time=train_time, time_type="train", path_to_log=path_to_experiment_log)
@@ -117,7 +119,7 @@ def main():
                         vl_log = ["VL{} {:.4f}".format(i + 1, sl.item()) for i, sl in enumerate(stages_loss)]
                         vl_log = " | ".join(vl_log)
                         print("[ Epoch: {}/{} - Batch: {}/{} ] | [ {} | Val MAL: {:.4f} ]"
-                              .format(epoch, EPOCHS, i, test_set_size, vl_log, stages_loss[-1].item()))
+                              .format(epoch + 1, epochs, i + 1, test_set_size, vl_log, stages_loss[-1].item()))
 
             print("\n--------------------------------------------------------------\n")
 
@@ -149,4 +151,15 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data_folder', type=str, default=DATA_FOLDER)
+    parser.add_argument('--epochs', type=int, default=EPOCHS)
+    parser.add_argument('--lr', type=float, default=LEARNING_RATE)
+    opt = parser.parse_args()
+
+    print("\n *** Training configuration ***")
+    print("\t Data folder ....... : {}".format(opt.data_folder))
+    print("\t Epochs ............ : {}".format(opt.epochs))
+    print("\t Learning rate ..... : {}".format(opt.lr))
+
+    main(opt)

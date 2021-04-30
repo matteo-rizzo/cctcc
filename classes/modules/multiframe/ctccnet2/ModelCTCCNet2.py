@@ -13,8 +13,8 @@ class ModelCTCCNet2(BaseModel):
         super().__init__()
         self._network = CTCCNet2().float().to(self._device)
 
-    def predict(self, seq_temp: torch.Tensor, seq_shot: torch.Tensor = None) -> List:
-        return self._network(seq_temp, seq_shot)
+    def predict(self, seq_temp: torch.Tensor, seq_shot: torch.Tensor = None, return_preds: bool = False) -> List:
+        return self._network(seq_temp, seq_shot, return_preds)
 
     @staticmethod
     def get_multiply_accumulated_loss(l1: torch.Tensor,
@@ -38,3 +38,22 @@ class ModelCTCCNet2(BaseModel):
             stages_loss.append(self.get_angular_loss(stage_out, y))
         mal = sum(stages_loss)
         return stages_loss, mal
+
+    def compute_corr_loss(self, o: List, y: torch.Tensor) -> Tuple:
+        self.reset_gradient()
+        cas_loss, cas_mal, cor_loss, cor_mal = self.get_corr_loss(o, y)
+        mal = cas_mal + cor_mal
+        mal.backward()
+        self.optimize()
+        return cas_loss, cas_mal, cor_loss, cor_mal
+
+    def get_corr_loss(self, o: List, y: torch.Tensor) -> Tuple:
+        outputs, preds = zip(*o)
+        cas_out, cor_out, cas_loss, cor_loss = None, None, [], []
+        for stage in range(NUM_STAGES):
+            cas_out = torch.mul(cas_out, outputs[stage]) if stage - 1 > 0 else outputs[stage]
+            cas_loss.append(self.get_angular_loss(cas_out, y[:, -1, :]))
+            cor_out = torch.mul(cor_out, preds[stage]) if stage - 1 > 0 else preds[stage]
+            cor_loss.append(self.get_angular_loss(cor_out.permute(1, 0, 2), y))
+        cas_mal, cor_mal = sum(cas_loss), sum(cor_loss)
+        return cas_loss, cas_mal, cor_loss, cor_mal

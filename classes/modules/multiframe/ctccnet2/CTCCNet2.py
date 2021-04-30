@@ -1,4 +1,4 @@
-from typing import List
+from typing import Union
 
 import torch
 from torch import nn
@@ -20,7 +20,7 @@ class CTCCNet2(nn.Module):
         """ Correct each frame in the sequence using its predicted illuminant """
 
         # Linear to non-linear illuminant
-        illuminants = illuminants.pow(1.0 / 2.2).squeeze(1).unsqueeze(2).unsqueeze(3).unsqueeze(0)
+        illuminants = illuminants.pow(1.0 / 2.2).permute(1, 0, 2).unsqueeze(3).unsqueeze(4)
 
         # Correct the image
         correction = (illuminants * torch.sqrt(torch.Tensor([3])).to(self.__device))
@@ -32,7 +32,10 @@ class CTCCNet2(nn.Module):
 
         return normalized_seq
 
-    def forward(self, seq_temp: torch.Tensor, seq_shot: torch.Tensor) -> List:
+    def forward(self,
+                seq_temp: torch.Tensor,
+                seq_shot: torch.Tensor,
+                return_preds: bool = False) -> Union[torch.Tensor, list]:
         """
         @param seq_temp: the sequences of frames of shape "bs x ts x nc x h x w"
         @param seq_shot: the mimic sequences of shape "bs x ts x nc x h x w"
@@ -40,7 +43,7 @@ class CTCCNet2(nn.Module):
         """
 
         # Iterate over each stage in the cascade
-        outputs = []
+        outputs, preds = [], []
 
         for submodule in self.submodules[:-1]:
             # Get the predictions for the current stage
@@ -54,9 +57,14 @@ class CTCCNet2(nn.Module):
 
             # Add the predicted shot frame illuminant to the list of outputs to return
             outputs.append(output)
+            preds.append(t_preds)
 
         # Get the predicted illuminant for the last stage of the cascade
-        output, _, _ = self.submodules[-1](seq_temp, seq_shot)
+        output, t_preds, _ = self.submodules[-1](seq_temp, seq_shot)
         outputs.append(output)
+        preds.append(t_preds)
+
+        if return_preds:
+            return list(zip(outputs, preds))
 
         return outputs

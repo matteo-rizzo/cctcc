@@ -148,3 +148,5 @@ dmypy.json
 /test/tcc/logs/
 /dataset/grayball/images/
 /training/tcc/logs/
+/train/grayball/logs/
+/train/tcc/logs/

@@ -26,7 +26,7 @@ def main(opt):
     learning_rate = opt.lr
     evaluator = Evaluator()
 
-    path_to_log = os.path.join("training", "tcc", "logs", "ctccnet2_{}_{}".format(data_folder, str(time.time())))
+    path_to_log = os.path.join("train", "tcc", "logs", "ctccnet2_{}_{}".format(data_folder, str(time.time())))
     os.makedirs(path_to_log)
 
     path_to_metrics_log = os.path.join(path_to_log, "metrics.csv")

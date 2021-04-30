@@ -1,6 +1,7 @@
 import glob
 import math
 import os
+import pickle
 import shutil
 import time
 from typing import List, Dict
@@ -16,6 +17,7 @@ ERROR_THRESHOLD = 5.0
 MASK_COORDS = [(225, 360), (335, 130)]
 PATH_TO_SCENES = "images"
 
+ANALYZE_DATA = False
 PATH_TO_HIGHLIGHTS = "large_variations"
 NUM_HIGHLIGHTS = 10
 FOLD_VARIATIONS = 0
@@ -31,15 +33,17 @@ def mask_ground_truth(path_to_frame: str):
 
 
 def process_sequence(frame_idx: int, scene_paths: List, path_to_seq: str, images_gt: Dict):
-    errors = []
+    ground_truths, errors = [], []
     for i in range(N):
         path_to_frame = scene_paths[frame_idx - i]
         print("\t * Preceding frame {}: {}".format(str(abs(i - N)), path_to_frame))
         masked_frame = mask_ground_truth(path_to_frame)
         masked_frame.save(os.path.join(path_to_seq, str(abs(i - N)) + ".jpg"))
 
+        current_gt = images_gt[path_to_frame]
+        ground_truths = [current_gt] + ground_truths
+
         if i < N - 1:
-            current_gt = images_gt[path_to_frame]
             preceding_gt = images_gt[scene_paths[frame_idx - i - 1]]
             error = angular_error(current_gt, preceding_gt)
             errors.insert(0, angular_error(current_gt, preceding_gt))
@@ -49,7 +53,7 @@ def process_sequence(frame_idx: int, scene_paths: List, path_to_seq: str, images
 
     mean_error, std_error = np.mean(errors), np.std(errors)
 
-    plt.plot(range(1, N + 1), errors)
+    plt.plot(range(1, N), errors)
     plt.title("AVG: {:.4f} - STD DEV: {:.4f}".format(mean_error, std_error))
     plt.xticks(range(1, N + 1))
     plt.xlabel("Frame Index")
@@ -57,7 +61,7 @@ def process_sequence(frame_idx: int, scene_paths: List, path_to_seq: str, images
     plt.savefig(os.path.join(path_to_seq, "color_trend.png"), bbox_inches='tight', dpi=200)
     plt.clf()
 
-    return mean_error, std_error
+    return ground_truths, mean_error, std_error
 
 
 def angular_error(f1: np.ndarray, f2: np.ndarray) -> float:
@@ -79,15 +83,8 @@ def main():
     print("\n--------------------------------------------------------------------------------------------\n")
 
     num_sequences, variations, test_scenes = 0, [], []
-    scenes = os.listdir(PATH_TO_SCENES)
-
-    if NUM_FOLDS != -1 and FOLD_VARIATIONS != -1:
-        fold_size = len(scenes) // NUM_FOLDS
-        test_scenes = [scenes.pop(FOLD_VARIATIONS * fold_size) for _ in range(fold_size)]
 
     for scene_name in os.listdir(PATH_TO_SCENES):
-        if scene_name in test_scenes:
-            continue
 
         print("\n *** Processing scene {} ***".format(scene_name))
         scene_paths = sorted(glob.glob(os.path.join(PATH_TO_SCENES, scene_name, "*.jpg")))
@@ -99,10 +96,11 @@ def main():
             path_to_seq = os.path.join(path_to_sequences, scene_name, str(frame_idx))
             os.makedirs(path_to_seq, exist_ok=True)
 
-            print("\n Processing file {}".format(path_to_file))
-            mean_variation, std_variation = process_sequence(frame_idx, scene_paths, path_to_seq, images_gt)
-            variations.append((scene_name, frame_idx, path_to_file.split(os.sep)[-1], mean_variation, std_variation))
+            print("\n Processing seq {} - file {}".format(path_to_seq, path_to_file))
+            ground_truths, mean_var, std_var = process_sequence(frame_idx, scene_paths, path_to_seq, images_gt)
+            variations.append((scene_name, frame_idx, path_to_file.split(os.sep)[-1], mean_var, std_var))
 
+            pickle.dump(ground_truths, open(os.path.join(path_to_seq, 'seq_ground_truth.pkl'), "wb"))
             gt = np.array(images_gt[path_to_file])
             np.savetxt(os.path.join(path_to_seq, 'ground_truth.txt'), gt, delimiter=',')
 
@@ -112,36 +110,37 @@ def main():
     print("\t Generated {} sequences of length N = {} at {}".format(num_sequences, N, path_to_sequences))
     print("\n--------------------------------------------------------------------------------------------\n")
 
-    path_to_save = "{}_{}".format(PATH_TO_HIGHLIGHTS, time.time())
-    os.makedirs(path_to_save)
+    if ANALYZE_DATA:
+        path_to_save = "{}_{}".format(PATH_TO_HIGHLIGHTS, time.time())
+        os.makedirs(path_to_save)
 
-    s, f, fn, mv, sdv = zip(*variations)
-    path_to_csv = os.path.join(path_to_save, "data.csv")
-    pd.DataFrame({"scene": s, "frame": f, "file_name": fn, "mean_var": mv, "std_dev_var": sdv}).to_csv(path_to_csv)
+        s, f, fn, mv, sdv = zip(*variations)
+        path_to_csv = os.path.join(path_to_save, "data.csv")
+        pd.DataFrame({"scene": s, "frame": f, "file_name": fn, "mean_var": mv, "std_dev_var": sdv}).to_csv(path_to_csv)
 
-    print("\n Top {} sequences with largest avg variation \n".format(NUM_HIGHLIGHTS))
-    top_avg_seqs = sorted(variations, key=lambda tup: tup[3], reverse=True)[:NUM_HIGHLIGHTS]
-    for (s, f, fn, mv, sdv) in top_avg_seqs:
-        print(" - Scene: {} | Frame {} (File: {}) | AVG: {:.4f} | STD DEV: {:.4f}".format(s, f, fn, mv, sdv))
-        path_to_src = os.path.join(path_to_sequences, s, str(f))
-        path_to_dest = os.path.join(path_to_save, "top_avg", s, str(f))
-        shutil.copytree(path_to_src, path_to_dest)
+        print("\n Top {} sequences with largest avg variation \n".format(NUM_HIGHLIGHTS))
+        top_avg_seqs = sorted(variations, key=lambda tup: tup[3], reverse=True)[:NUM_HIGHLIGHTS]
+        for (s, f, fn, mv, sdv) in top_avg_seqs:
+            print(" - Scene: {} | Frame {} (File: {}) | AVG: {:.4f} | STD DEV: {:.4f}".format(s, f, fn, mv, sdv))
+            path_to_src = os.path.join(path_to_sequences, s, str(f))
+            path_to_dest = os.path.join(path_to_save, "top_avg", s, str(f))
+            shutil.copytree(path_to_src, path_to_dest)
 
-    s, f, fn, mv, sdv = zip(*top_avg_seqs)
-    path_to_csv = os.path.join(path_to_save, "top_avg.csv")
-    pd.DataFrame({"scene": s, "frame": f, "file_name": fn, "mean_var": mv, "std_dev_var": sdv}).to_csv(path_to_csv)
+        s, f, fn, mv, sdv = zip(*top_avg_seqs)
+        path_to_csv = os.path.join(path_to_save, "top_avg.csv")
+        pd.DataFrame({"scene": s, "frame": f, "file_name": fn, "mean_var": mv, "std_dev_var": sdv}).to_csv(path_to_csv)
 
-    print("\n Top {} sequences with largest std dev of variations \n".format(NUM_HIGHLIGHTS))
-    top_std_dev_seqs = sorted(variations, key=lambda tup: tup[4], reverse=True)[:NUM_HIGHLIGHTS]
-    for (s, f, fn, mv, sdv) in top_std_dev_seqs:
-        print(" - Scene: {} | Frame {} (File: {}) | AVG: {:.4f} | STD DEV: {:.4f}".format(s, f, fn, mv, sdv))
-        path_to_src = os.path.join(path_to_sequences, s, str(f))
-        path_to_dest = os.path.join(path_to_save, "top_std_dev", s, str(f))
-        shutil.copytree(path_to_src, path_to_dest)
+        print("\n Top {} sequences with largest std dev of variations \n".format(NUM_HIGHLIGHTS))
+        top_std_dev_seqs = sorted(variations, key=lambda tup: tup[4], reverse=True)[:NUM_HIGHLIGHTS]
+        for (s, f, fn, mv, sdv) in top_std_dev_seqs:
+            print(" - Scene: {} | Frame {} (File: {}) | AVG: {:.4f} | STD DEV: {:.4f}".format(s, f, fn, mv, sdv))
+            path_to_src = os.path.join(path_to_sequences, s, str(f))
+            path_to_dest = os.path.join(path_to_save, "top_std_dev", s, str(f))
+            shutil.copytree(path_to_src, path_to_dest)
 
-    s, f, fn, mv, sdv = zip(*top_std_dev_seqs)
-    path_to_csv = os.path.join(path_to_save, "top_std_dev.csv")
-    pd.DataFrame({"scene": s, "frame": f, "file_name": fn, "mean_var": mv, "std_dev_var": sdv}).to_csv(path_to_csv)
+        s, f, fn, mv, sdv = zip(*top_std_dev_seqs)
+        path_to_csv = os.path.join(path_to_save, "top_std_dev.csv")
+        pd.DataFrame({"scene": s, "frame": f, "file_name": fn, "mean_var": mv, "std_dev_var": sdv}).to_csv(path_to_csv)
 
 
 if __name__ == '__main__':

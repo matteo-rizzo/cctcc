@@ -1,6 +1,7 @@
 import argparse
 import glob
 import os
+import pickle
 
 import cv2
 import numpy as np
@@ -11,7 +12,6 @@ SUBSEQUENCE_LEN = 2
 
 BASE_PATH_TO_DATA = os.path.join("preprocessed")
 BASE_PATH_TO_DATASET = os.path.join("raw", "5f_seqs")
-GROUND_TRUTH_FILE = "ground_truth.txt"
 
 
 def main(opt):
@@ -24,7 +24,7 @@ def main(opt):
     print("\t Preprocessing SFU Gray Ball sequences")
     print("\n=================================================\n")
 
-    for scene_name in os.listdir(base_path_to_dataset):
+    for scene_name in sorted(os.listdir(base_path_to_dataset)):
 
         print("\n *** Processing scene {} ***".format(scene_name))
 
@@ -34,12 +34,16 @@ def main(opt):
         path_to_label = os.path.join(base_path_to_data, scene_name, "nlabel")
         os.makedirs(path_to_label, exist_ok=True)
 
+        path_to_labels = os.path.join(base_path_to_data, scene_name, "nlabels")
+        os.makedirs(path_to_labels, exist_ok=True)
+
         path_to_scene = os.path.join(base_path_to_dataset, scene_name)
 
-        for seq_id in os.listdir(path_to_scene):
+        for seq_id in sorted(os.listdir(path_to_scene), key=lambda x: int(x)):
             path_to_seq = os.path.join(path_to_scene, seq_id)
 
-            illuminant = list(map(float, open(os.path.join(path_to_seq, GROUND_TRUTH_FILE), "r").readlines()))
+            illuminant = list(map(float, open(os.path.join(path_to_seq, "ground_truth.txt"), "r").readlines()))
+            illuminants = pickle.load(open(os.path.join(path_to_seq, "seq_ground_truth.pkl"), "rb"))
 
             files_seq = glob.glob(os.path.join(path_to_seq, "[0-9]*.jpg"))
             files_seq.sort(key=lambda x: x[:-4].split(os.sep)[-1])
@@ -56,6 +60,7 @@ def main(opt):
             filename = "{}_{}".format(scene_name, seq_id)
             np.save(os.path.join(path_to_data, filename), images)
             np.save(os.path.join(path_to_label, filename), illuminant)
+            np.save(os.path.join(path_to_labels, filename), illuminants)
 
     print("\n=================================================\n")
     print("\t Sequences processed successfully!")

@@ -1,5 +1,9 @@
 # Cascading Convolutional Colour Constancy
 
+## Paper
+
+ArXiv paper: https://arxiv.org/abs/2106.07955
+
 ## Installation
 
 This implementation uses [Pytorch](http://pytorch.org/). It was developed and tested using torch >= 1.7.1 and python 3.6

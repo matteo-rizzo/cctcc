@@ -2,7 +2,7 @@
 
 ## Paper
 
-ArXiv paper: https://arxiv.org/abs/2106.07955
+ArXiv paper ["Cascading Convolutional Temporal Colour Constancy"](https://arxiv.org/abs/2106.07955) by Matteo Rizzo, Cristina Conati, Daesik Jang, Hui Hu. 
 
 ## Installation
 
@@ -202,4 +202,17 @@ DATA_FOLDER = "tcc_split"
 
 # The path to the pretrained PTH model to be loaded for testing
 PATH_TO_PTH = os.path.join("trained_models", "ctccnet", "model.pth")
+```
+
+## Cite
+
+```latex
+@misc{rizzo2021cascading,
+      title={Cascading Convolutional Temporal Colour Constancy}, 
+      author={Matteo Rizzo and Cristina Conati and Daesik Jang and Hui Hu},
+      year={2021},
+      eprint={2106.07955},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
 ```

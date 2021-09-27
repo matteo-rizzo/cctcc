@@ -82,8 +82,7 @@ GROUND_TRUTH_FILE = "groundtruth.txt"
 ## Pretrained models
 
 Pretrained models in PTH format can be downloaded
-from [here](https://ubcca-my.sharepoint.com/:u:/r/personal/marizzo_student_ubc_ca/Documents/Models/iccv21.zip?csf=1&web=1&e=Xdu3vf)
-. Please contact me if you have any trouble downloading the models and I will be happy to figure out a way to deliver
+from [here](https://drive.google.com/drive/folders/1WCOL7Ahy_tDCQDvqn0KQqRhv7eukf3jf?usp=sharing). Please contact me if you have any trouble downloading the models and I will be happy to figure out a way to deliver
 them to you.
 
 The pretrained models are organized based on the type of sequences they have been trained on, that is full

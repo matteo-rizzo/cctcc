@@ -2,7 +2,7 @@
 
 ## Paper
 
-ArXiv paper ["Cascading Convolutional Temporal Colour Constancy"](https://arxiv.org/abs/2106.07955) by Matteo Rizzo, Cristina Conati, Daesik Jang, Hui Hu. 
+Matteo Rizzo, Cristina Conati, Daesik Jang, and Hui Hu "Cascading convolutional temporal color constancy," Journal of Electronic Imaging 32(1), 013049 (28 February 2023). https://doi.org/10.1117/1.JEI.32.1.013049
 
 ## Installation
 
@@ -206,12 +206,17 @@ PATH_TO_PTH = os.path.join("trained_models", "ctccnet", "model.pth")
 ## Cite
 
 ```latex
-@misc{rizzo2021cascading,
-      title={Cascading Convolutional Temporal Colour Constancy}, 
-      author={Matteo Rizzo and Cristina Conati and Daesik Jang and Hui Hu},
-      year={2021},
-      eprint={2106.07955},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@article{10.1117/1.JEI.32.1.013049,
+  author = {Matteo Rizzo and Cristina Conati and Daesik Jang and Hui Hu},
+  title = {{Cascading convolutional temporal color constancy}},
+  volume = {32},
+  journal = {Journal of Electronic Imaging},
+  number = {1},
+  publisher = {SPIE},
+  pages = {013049},
+  keywords = {color constancy, videos, sequences, Performance modeling, Current controlled current source, Data modeling, Education and training, Video, Color, Light sources and illumination, Network architectures, RGB color model, Video surveillance},
+  year = {2023},
+  doi = {10.1117/1.JEI.32.1.013049},
+  URL = {https://doi.org/10.1117/1.JEI.32.1.013049}
 }
 ```
